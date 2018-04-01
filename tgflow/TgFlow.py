@@ -39,7 +39,10 @@ def save_sd(states,data):
     with open('data.p','wb+') as f:
         pickle.dump(data,f)
 
-States,Data = read_sd('states.p','data.p')
+try:
+    States,Data = read_sd('states.p','data.p')
+except FileNotFoundError:
+    print("tgflow: creating data.p and states.p files")
 
 def __init__(apikey):
     global bot,key
