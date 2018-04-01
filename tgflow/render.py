@@ -18,7 +18,7 @@ def rdict(d,a):
         d = [rdict(x,a) for x in d ]
     elif isinstance(d,dict):
         # recursively process nested dicts. 
-        # can cause errors when used badly.
+        # throws recursive depth error if self referenced
         for k,v in d.items():
             d[k] = rdict(v,a)
     return d
@@ -33,7 +33,7 @@ def flatten(lis):
     return new_lis
 
 def prep(UI,args):
-    print("preprocessing")
+    print("tgflow: preprocessing ui")
     ## SUBSTITUTION
     ui = rdict(UI,args)
     ## VALIDALIZATIOIN
