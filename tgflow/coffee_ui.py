@@ -8,7 +8,7 @@ def coffee_encode(d):
     # 'action' encodes action names in a way python can receive it 
     coffee = """
 action = (s)->'+action|'+s+'|o+'
-subst = (s)->'+o post|'+s+'|o+'
+subst = (s)->'+post|'+s+'|o+'
 a = action
 ps = subst
 u=%s
