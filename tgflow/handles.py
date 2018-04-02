@@ -21,7 +21,7 @@ class post():
         return self.f(s,**d)
 
 class action():
-    def __init__(self,func,name=None,react_to=None):
+    def __init__(self,func,name=None,update_msg=True, react_to=None):
         if isinstance(func,Enum):
             ns = func
             func = lambda i,s,**d: (ns, d)
@@ -29,6 +29,7 @@ class action():
         self.__name__ = str(name or func.__name__)
         self.react_to = react_to
         self.f= func
+        self.update = update_msg
         self.ns = ns
     def __repr__(self):
         if self.ns:
@@ -38,12 +39,13 @@ class action():
                 return "<+action: "+self.f.__name__+str(signature(self.f))+">"
             except TypeError:
                 return "<+action: "+self.f.__repr__()+">"
+
     def call(self,i,s,**d):
         # TODO: check signature
         inp = {'i':i,'s':s,'d':d}
         args,kwargs=get_args_kwargs(self.f)
         if len(args)>3:
-            print('No more than 3 arguments withoud def')
+            print('No more than 3 arguments without def')
         else:
             if inspect.getargspec(self.f)[2]=='d':
                 print ('ff',self.__repr__())

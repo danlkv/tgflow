@@ -44,14 +44,6 @@ try:
 except FileNotFoundError:
     print("tgflow: creating data.p and states.p files")
 
-def __init__(apikey):
-    global bot,key
-    print ('init')
-    key = apikey
-    bot = telebot.telebot(key)
-    bot.set_update_listener(message_handler)
-    set_callback_handler()
-
 def configure(token=None, state=None, data={}):
     global def_state,def_data
     global bot,key
@@ -104,7 +96,10 @@ def set_callback_handler():
         a = Actions.get(call.data)
         d = Data.get(call.message.chat.id,def_data)
         messages = flow(a,s,d,call,call.message.chat.id)
-        send(messages,call.message.chat.id)
+        if not a.update:
+            send(messages,call.message.chat.id)
+        else:
+            update(messages, call.message)
 
 def flow(a,s,d,i,_id):
     if a:
@@ -168,12 +163,27 @@ def save_kactions(k,ui,s):
     elif isinstance(ui,list):
         ui = [save_kactions(k,x,s) for x in ui ]
 
-def send(messages,id):
+def send(message,id):
     print("tgflow: sending message")
-    for text,markup in messages:
+    for text,markup in message:
         bot.send_message(
             text=text,
             chat_id=id,
             parse_mode='Markdown',
             reply_markup =markup)
 
+def update(messages,msg):
+    print("tgflow: updating message")
+    for text,markup in messages:
+        if text:
+            bot.edit_message_text(
+                text=text,
+                chat_id=msg.chat.id,
+                parse_mode='Markdown',
+                message_id=msg.message_id
+            )
+        if markup:
+            bot.edit_message_reply_markup(
+                chat_id=msg.chat.id,
+                message_id=msg.message_id,
+                reply_markup=markup)
