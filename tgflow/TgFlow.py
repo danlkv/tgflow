@@ -96,10 +96,14 @@ def set_callback_handler():
         a = Actions.get(call.data)
         d = Data.get(call.message.chat.id,def_data)
         messages = flow(a,s,d,call,call.message.chat.id)
-        if not a.update:
-            send(messages,call.message.chat.id)
+        if a:
+            if not a.update:
+                send(messages,call.message.chat.id)
+            else:
+                update(messages, call.message)
         else:
-            update(messages, call.message)
+            print("tgflow: Warning: no action found but should")
+            send(messages,call.message.chat.id)
 
 def flow(a,s,d,i,_id):
     if a:

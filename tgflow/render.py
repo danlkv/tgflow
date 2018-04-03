@@ -1,8 +1,7 @@
 import json,pprint,copy,telebot
-
-
-pp = pprint.PrettyPrinter(indent=5)
 from . import handles as h
+pp = pprint.PrettyPrinter(indent=5)
+
 def rdict(d,a):
     # leave untouched original ui template and it's parts
     d = copy.copy(d)
@@ -14,6 +13,10 @@ def rdict(d,a):
             d = rdict(x,a)
         else:
             d=x
+    if callable(d):
+        # paste action instead of callable
+        d = h.action(d)
+        print("acion on callable")
     elif isinstance(d,list):
         d = [rdict(x,a) for x in d ]
     elif isinstance(d,dict):
