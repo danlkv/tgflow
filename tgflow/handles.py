@@ -48,8 +48,9 @@ class action():
             print('No more than 3 arguments without def')
         else:
             if inspect.getargspec(self.f)[2]=='d':
-                print ('ff',self.__repr__())
+                # basic i,s,**d usage
                 return self.f(i,s,**d)
+            # generate requested data dict
             to_pass = {name:inp.get(name) for name in args}
             for name in kwargs:
                 val = d.get(name)
@@ -63,6 +64,7 @@ class action():
                     ns = outp[0]
                     print("OUTPUT OF %s:"%str(self.f))
                     pp.pprint(outp)
+                    # Pass returned value to key he requested.
                     d.update(outp[1])
                 if len(outp)==1:
                     ns = outp[0]
@@ -72,18 +74,18 @@ class action():
             ns = s
         return ns,d
 
-def safeget(dct,keylist):
+def safeget(dct,keylist,default=None):
     for key in keylist:
         try:
             dct = dct[key]
         except KeyError:
-            return None
+            return default
     return dct
-def st(string,key):
+def st(string,key,default=None):
     if isinstance(key,str):
-        return post(lambda s,**d: string%d.get(key))
+        return post(lambda s,**d: string%d.get(key,default))
     else:
-        return post(lambda s,**d: string%safeget(d,key))
+        return post(lambda s,**d: string%safeget(d,key,default))
 def obj(o):
     return  post(lambda s,**d: o)
 def data_key(key):
