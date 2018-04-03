@@ -17,19 +17,18 @@ UI = {
          {'show info':h.action(States.INFO)},
           {'set my favourite':h.action(States.FAV)}
      ]},
-    States.FAV:{
-        't':'Please send me name of your favourite thing',
-        'react_to':h.action(
-            lambda i: (States.THANKS,{'fav':i.text})),
-    },
     States.INFO:{
+        't':'Please send me name of your favourite thing',
+        'b':[{'set foo':(lambda i: (States.THANKS,{'foo':'var'}))}]
+    },
+    States.FAV:{
         't':h.st('Your fav is %s','fav'),
         'react':h.action(
             lambda i: (States.THANKS,{'fav':i.text}),
             react_to = 'text'),
     },
     States.THANKS:{
-        't':'Thanks! I will remember it',
+        't':h.st('Thanks! I will remember it foo %s','foo'),
          'b': [
              {'show info':h.action(States.INFO,update_msg=True)},
           {'set another favourite':h.action(States.FAV,update_msg=True)}
