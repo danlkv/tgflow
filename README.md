@@ -1,7 +1,7 @@
 
 ## <p align="center">tgflow
 <p align="center">
-<img  src="https://raw.githubusercontent.com/DaniloZZZ/tgflow/master/assets/fgflow.png " width="200"/>
+<img  src="https://raw.githubusercontent.com/DaniloZZZ/tgflow/master/assets/fgflow.png" width="200"/>
 </p>
 <p align="center">A declarative-style <a href="https://core.telegram.org/bots/api">Telegram Bot</a> framework
 
