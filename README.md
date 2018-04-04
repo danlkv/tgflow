@@ -61,7 +61,7 @@ It is generally recommended to use the first option.
 
 
 ## Writing your first bot
-Tgflow is a state-based framework Each user has a state and data, and each state corresponds to some text and buttons - generally speaking, UI.
+Tgflow is a state-based framework. Each user has a state and data, and each state corresponds to some text and buttons - generally speaking, UI.
 It's a good way to imagine your bot as some shema like this:
 
 ![ a sample shema](https://raw.githubusercontent.com/DaniloZZZ/tgflow/master/assets/shema.png)
