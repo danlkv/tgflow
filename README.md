@@ -93,12 +93,12 @@ def show_news(i,**d): # i is for input, s is for state, d is for data
 	upd_data = {'news':news} # assign user's data to pass forward and store in dict
 	return new_state,upd_data
 
-# Unnececary parameters an be omitted.
+# Unnececary parameters can be omitted.
 # Tgflow will automatically determine what to pass.
 def show_weather(i,location=None): # you can get user's data by key like this
 	user_id = i.message.from.id
-	new_data = {'weather': logic.get_weather(location)} # assign user's data to pass forward and store
-	return States.WEATHER,new_data
+	upd_data = {'weather': logic.get_weather(location)} # assign user's data to pass forward and store
+	return States.WEATHER,upd_data
 	
 UI={States.START:{
 	'text':"Hello, wanna see some news?",
