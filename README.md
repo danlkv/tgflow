@@ -8,15 +8,13 @@
 _Here's how you declare a vanilia counter bot:_
 
 ```python
-from tgflow import TgFlow,handles
+import tgflow 
 
-TgFlow.configure(token='TOKEN',state='start') # display 'start' state by default
-TgFlow.start({'start':{
-	# t is for 'text'
-    't':handles.st("Hello, i'm hooray bot. Hooray %i times!", 
+tgflow.configure(token='TOKEN',state='start') # display 'start' state by default
+tgflow.start({'start':{
+    'text':tgflow.paste("Hello, i'm hooray bot. Hooray %i times!", 
                    'count',default=1), # pass 'count' value to '%i' in string
-    # b is for 'buttons'
-    'b':[{
+    'buttons':[{
         'Say hooray':lambda count=1:
         ('start',{'count':count+1}) # display 'start' state, increment 'count' value
     }]
@@ -80,7 +78,7 @@ Basically, you define state names in separate file and include it everywhere. Yo
 
 Then, for each state you create a dictionary that defines UI and some simple actions. To handle user input you define your functions and assign them to buttons in UI dict.  You store user-specific data in a dictionary which is passed to you by 'd' argument. Here is a brief example of usage:
 ```python
-from tgflow import TgFlow
+import tgflow
 from tgflow import handles as h
 from States import States # here you defined your states
 import logic # some arbitrary code with buisness logic
@@ -104,10 +102,10 @@ def show_weather(i,location=None): # you can get user's data by key like this
 	return States.WEATHER,new_data
 	
 UI={States.START:{
-	't':"Hello, wanna see some news?",
-	'b':[
-		{'yes, show me news':h.a(show_news)}, # h.a is an alias for handles.action
-		{'no, tell me the weather':h.a(show_weather)}
+	'text':"Hello, wanna see some news?",
+	'buttons':[
+		{'yes, show me news':tgflow.action(show_news)}, 
+		{'no, tell me the weather':tgflow.action(show_weather)}# you can also use tgflow.a
 		]
 	},
 	States.NEWS:{
@@ -120,5 +118,4 @@ UI={States.START:{
 	}
 	States.WEATHER:{...},		
 	States.NO_PERMISSION:{...},						 
-				 
-```
+
