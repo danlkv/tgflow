@@ -39,6 +39,10 @@ def prep(UI,args):
     print("tgflow: preprocessing ui")
     ## SUBSTITUTION
     ui = rdict(UI,args)
+    # support for full names
+    ui['t']=ui.get('text')
+    ui['b']=ui.get('buttons')
+    ui['kb']=ui.get('keyboard')
     ## VALIDALIZATIOIN
     b = ui.get('b')
     if b:
@@ -48,6 +52,7 @@ def prep(UI,args):
     return ui
 
 def render(ui):
+    # get ui contents
     t = ui.get('t')
     butns =ui.get('b')
     kbb =ui.get('kb')
