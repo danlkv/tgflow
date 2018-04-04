@@ -108,6 +108,7 @@ UI={States.START:{
 		]
 	},
 	States.NEWS:{
+	# t is short for text b is for buttons
 	't':tgflow.paste("here are your news:\n %s", 'news'),
 	 #  tgflow.paste pastes value from user's data to string
 	 'b':[{'Back':States.START}] # you can leave just state(Enum) without wrapping.
