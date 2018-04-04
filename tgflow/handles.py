@@ -43,6 +43,8 @@ class action():
     def call(self,i,s,**d):
         # TODO: check signature
         inp = {'i':i,'s':s,'d':d}
+        # support for full names
+        inp.update( {'input':i,'sstate':s,'data':d})
         args,kwargs=get_args_kwargs(self.f)
         if len(args)>3:
             print('No more than 3 arguments without def')

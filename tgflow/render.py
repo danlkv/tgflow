@@ -35,14 +35,15 @@ def flatten(lis):
             new_lis.append(item)
     return new_lis
 
-def prep(UI,args):
+def prep(ui,args):
     print("tgflow: preprocessing ui")
     ## SUBSTITUTION
-    ui = rdict(UI,args)
     # support for full names
-    ui['t']=ui.get('text')
-    ui['b']=ui.get('buttons')
-    ui['kb']=ui.get('keyboard')
+    ui['t']=ui.get('t') or ui.get('text')
+    ui['b']=ui.get('b') or ui.get('buttons')
+    ui['kb']=ui.get('kb') or ui.get('keyboard')
+
+    ui = rdict(ui,args)
     ## VALIDALIZATIOIN
     b = ui.get('b')
     if b:
