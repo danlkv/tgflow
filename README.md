@@ -79,7 +79,6 @@ Basically, you define state names in separate file and include it everywhere. Yo
 Then, for each state you create a dictionary that defines UI and some simple actions. To handle user input you define your functions and assign them to buttons in UI dict.  You store user-specific data in a dictionary which is passed to you by 'd' argument. Here is a brief example of usage:
 ```python
 import tgflow
-from tgflow import handles as h
 from States import States # here you defined your states
 import logic # some arbitrary code with buisness logic
 
@@ -105,16 +104,16 @@ UI={States.START:{
 	'text':"Hello, wanna see some news?",
 	'buttons':[
 		{'yes, show me news':tgflow.action(show_news)}, 
-		{'no, tell me the weather':tgflow.action(show_weather)}# you can also use tgflow.a
+		{'no, tell me the weather':tgflow.action(show_weather)}# you can also use tgflow.a as shortcut
 		]
 	},
 	States.NEWS:{
-	't':h.st("here are your news:\n %s", 'news'),
-	 #  h.st pastes value from user's data to string
+	't':tgflow.paste("here are your news:\n %s", 'news'),
+	 #  tgflow.paste pastes value from user's data to string
 	 'b':[{'Back':States.START}] # you can leave just state(Enum) without wrapping.
 								 # this will forward user to this state.
-							 # equivalent to h.a(lambda(s): States.START)
-							 # or h.a(lambda(i,s,**d):(i,States.START,d))
+							 # equivalent to tgflow.a(lambda(s): States.START)
+							 # or tgflow.action(lambda(i,s,**d):(i,States.START,d))
 	}
 	States.WEATHER:{...},		
 	States.NO_PERMISSION:{...},						 
