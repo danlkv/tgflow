@@ -82,10 +82,16 @@ import tgflow
 from States import States # here you defined your states
 import logic # some arbitrary code with buisness logic
 
-def show_news(i,**d): # i is for input, s is for state, d is for data
-# here i will be callback_query (https://core.telegram.org/bots/api#callbackquery)
-	user_id = i.message.from.id
-	news=logic.get_news(user_id)
+def show_news(input,data):
+# here input will be callback_query (https://core.telegram.org/bots/api#callbackquery)
+# as show_news action is used on inline keyboard
+	user_id = input.message.from.id
+
+	# don't call news if already exists.
+	if not data.get('news'): # data dictionary stores all user's varibles.
+		news=logic.get_news(user_id)
+	else:
+		news=data['news']
 	if news:
 		new_state=States.NEWS
 	else:
@@ -95,8 +101,8 @@ def show_news(i,**d): # i is for input, s is for state, d is for data
 
 # Unnececary parameters can be omitted.
 # Tgflow will automatically determine what to pass.
-def show_weather(i,location=None): # you can get user's data by key like this
-	user_id = i.message.from.id
+def show_weather(input,location=None): # you can get user's data by key like this
+	user_id = input.message.from.id
 	upd_data = {'weather': logic.get_weather(location)} # assign user's data to pass forward and store
 	return States.WEATHER,upd_data
 	
