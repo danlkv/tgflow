@@ -21,7 +21,7 @@ class post():
         return self.f(s,**d)
 
 class action():
-    def __init__(self,func,name=None,update_msg=True, react_to=None):
+    def __init__(self,func,name=None,update_msg=True,only_send=False,react_to=None):
         if isinstance(func,Enum):
             ns = func
             func = lambda i,s,**d: (ns, d)
@@ -88,8 +88,13 @@ def st(string,key,default=None):
         return post(lambda s,**d: string%safeget(d,key,default))
 def obj(o):
     return  post(lambda s,**d: o)
+
 def data_key(key):
     return  post(lambda s,**d: d['key'])
+
+def send(text):
+    # return only text needed to send
+    return action(lambda i,s,**d: text,only_send=True)
 
 def choose(key,options,default = None):
     return post(lambda s,**d: options.get(d.get(key),default))
