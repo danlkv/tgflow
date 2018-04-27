@@ -89,6 +89,8 @@ def message_handler(messages):
         messages = flow(a,s,d,msg,msg.chat.id)
         send(messages,msg.chat.id)
 
+
+
 def set_callback_handler():
     @bot.callback_query_handler(func=lambda call: True)
     def callback_handler(call):
@@ -105,16 +107,7 @@ def set_callback_handler():
             print("tgflow: Warning: no action found but should")
             send(messages,call.message.chat.id)
 
-def flow(a,s,d,i,_id):
-    if a:
-        ns,nd = a.call(i,s,**d)
-        print('tgflow: called action:'+str(a))
-    else:
-        print('tgflow: no action found for message. State unchanged')
-        ns,nd = s,d
-
-    print ('tgflow: new state',ns)
-
+def gen_state_msg(i,ns,nd,_id,state_upd=True):
     pre_a = UI.get(ns).get('prepare')
     if pre_a:
        # call user-defined data perparations. 
@@ -125,7 +118,7 @@ def flow(a,s,d,i,_id):
 
     # saving data and state
     Data[_id] = nd
-    States[_id] = ns
+    if state_upd: States[_id] = ns
     save_sd(States,Data)
     # registering callback triggers on buttons
     save_iactions(ui.get('b'))
@@ -140,6 +133,22 @@ def flow(a,s,d,i,_id):
     # rendering message and buttons
     messages = render.render(ui)
     return messages
+
+def send_state(ns,tg_id):
+    d = Data.get(tg_id,def_data)
+    msg = gen_state_msg(None,ns,d,tg_id)
+    send(msg,tg_id)
+
+def flow(a,s,d,i,_id):
+    if a:
+        ns,nd = a.call(i,s,**d)
+        print('tgflow: called action:'+str(a))
+    else:
+        print('tgflow: no action found for message. State unchanged')
+        ns,nd = s,d
+
+    print ('tgflow: new state',ns)
+    return gen_state_msg(i,ns,nd,_id)
 
 def get_state(id,s):
     pass
