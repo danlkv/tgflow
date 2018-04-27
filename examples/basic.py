@@ -1,3 +1,4 @@
+import tgflow as tgf
 from tgflow import TgFlow as tgf
 from tgflow import handles as h
 from enum import Enum
@@ -14,12 +15,12 @@ UI = {
     States.START:
     {'t':'hello',
      'b': [
-         {'show info':h.action(States.INFO)},
+         {'show info':tgf.action(States.INFO)},
           {'set my favourite':h.action(States.FAV)}
      ]},
     States.INFO:{
         't':'Please send me name of your favourite thing',
-        'b':[{'set foo':(lambda i: (States.THANKS,{'foo':'var'}))}]
+        'b':[{'set foo':(lambda input,data: (States.THANKS,{'foo':'var'+data['foo']}))}]
     },
     States.FAV:{
         't':h.st('Your fav is %s','fav'),
