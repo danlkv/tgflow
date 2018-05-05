@@ -2,7 +2,7 @@ import telebot
 import hashlib
 from . import handles
 from . import render
-import pickle
+import pickle,time
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
@@ -17,7 +17,7 @@ UI = {}
 Data = {}
 Actions = {}
 Keyboards = {}
-Reaction_triggers = []
+Reaction_triggers = {}
 
 
 def read_sd(sf,df):
@@ -34,10 +34,13 @@ def read_sd(sf,df):
     return s,d
 
 def save_sd(states,data):
-    with open('states.p','wb+') as f:
-        pickle.dump(states,f)
-    with open('data.p','wb+') as f:
-        pickle.dump(data,f)
+    try:
+        with open('states.p','wb+') as f:
+            pickle.dump(states,f)
+        with open('data.p','wb+') as f:
+            pickle.dump(data,f)
+    except Exception as e:
+        print('Non-picklable',str(e))
 
 try:
     States,Data = read_sd('states.p','data.p')
@@ -64,7 +67,12 @@ def start(ui):
     global bot,UI
     UI = ui
     print("tgflow: listening")
-    bot.polling(none_stop=True)
+    while True:
+        try:
+            bot.polling(none_stop=True)
+        except Exception as e:
+            print("tgflow:polling error",e)
+            time.sleep(10)
 
 def get_file_link(file_id):
     finfo = bot.get_file(file_id)
@@ -81,7 +89,7 @@ def message_handler(messages):
         # key format: kb_+ButtonName
         a = Actions.get('kb_'+str(msg.text))
         if not a:
-            for r,a_ in Reaction_triggers:
+            for r,a_ in Reaction_triggers[msg.chat.id]:
                 if msg.__dict__.get(r):
                     a = a_
         d = Data.get(msg.chat.id,def_data)
@@ -128,7 +136,14 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     # registering reaction triggers
     rc = ui.get('react')
     if rc:
-        Reaction_triggers.append((rc.react_to,rc))
+        Reaction_triggers[_id].append((rc.react_to,rc))
+    # clearing reaction triggers if needed
+    rc = ui.get('clear_trig')
+    if rc:
+        for r,a_ in Reaction_triggers[_id]:
+            #TODO: handle arrays of triggers
+            if rc == r:
+                Reaction_triggers[_id].remove((r,a_))
 
     # rendering message and buttons
     messages = render.render(ui)
