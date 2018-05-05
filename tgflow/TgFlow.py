@@ -136,10 +136,12 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     # registering reaction triggers
     rc = ui.get('react')
     if rc:
+        print("tgflow: reaction tgigger for %i registrated %s"%(i,str(rc)))
         Reaction_triggers[_id].append((rc.react_to,rc))
     # clearing reaction triggers if needed
     rc = ui.get('clear_trig')
     if rc:
+        print("tgflow: reaction trigger clear",rc)
         for r,a_ in Reaction_triggers[_id]:
             #TODO: handle arrays of triggers
             if rc == r:
