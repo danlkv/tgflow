@@ -33,7 +33,8 @@ UI = {
          'b': [
              {'show info':h.action(States.INFO,update_msg=True)},
           {'set another favourite':h.action(States.FAV,update_msg=True)}
-         ]},
+         ],
+        'clear_trig':'text'},
     }
 
 tgf.configure(token=key,
