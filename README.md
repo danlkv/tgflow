@@ -83,6 +83,27 @@ import tgflow
 from States import States # here you defined your states
 import logic # some arbitrary code with buisness logic
 
+UI={
+States.START:{
+	'text':"Hello, wanna see some news?",
+	'buttons':[
+		{'yes, show me news':tgflow.action(show_news)}, 
+		{'no, tell me the weather':tgflow.action(show_weather)}# you can also use tgflow.a as shortcut
+		]
+	},
+	States.NEWS:{
+	# t is short for text b is for buttons
+	't':tgflow.paste("here are your news:\n %s", 'news'),
+	 #  tgflow.paste pastes value from user's data to string
+	 'b':[{'Back':States.START}] # you can leave just state(Enum) without wrapping.
+								 # this will forward user to this state.
+							 # equivalent to tgflow.a(lambda(s): States.START)
+							 # or tgflow.action(lambda(i,s,**d):(i,States.START,d))
+	}
+States.WEATHER:{...},		
+States.NO_PERMISSION:{...},						 
+}
+
 def show_news(input,data):
 # here input will be callback_query (https://core.telegram.org/bots/api#callbackquery)
 # as show_news action is used on inline keyboard
@@ -107,23 +128,4 @@ def show_weather(input,location=None): # you can get user's data by key like thi
 	upd_data = {'weather': logic.get_weather(location)} # assign user's data to pass forward and store
 	return States.WEATHER,upd_data
 	
-UI={
-States.START:{
-	'text':"Hello, wanna see some news?",
-	'buttons':[
-		{'yes, show me news':tgflow.action(show_news)}, 
-		{'no, tell me the weather':tgflow.action(show_weather)}# you can also use tgflow.a as shortcut
-		]
-	},
-	States.NEWS:{
-	# t is short for text b is for buttons
-	't':tgflow.paste("here are your news:\n %s", 'news'),
-	 #  tgflow.paste pastes value from user's data to string
-	 'b':[{'Back':States.START}] # you can leave just state(Enum) without wrapping.
-								 # this will forward user to this state.
-							 # equivalent to tgflow.a(lambda(s): States.START)
-							 # or tgflow.action(lambda(i,s,**d):(i,States.START,d))
-	}
-States.WEATHER:{...},		
-States.NO_PERMISSION:{...},						 
 
