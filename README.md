@@ -11,7 +11,8 @@ _Here's how you declare a vanilia counter bot:_
 import tgflow 
 
 tgflow.configure(token='TOKEN',state='start') # display 'start' state by default
-tgflow.start({'start':{
+tgflow.start({
+'start':{
     'text':tgflow.paste("Hello, i'm hooray bot. Hooray %i times!", 
                    'count',default=1), # pass 'count' value to '%i' in string
     'buttons':[{
@@ -106,7 +107,8 @@ def show_weather(input,location=None): # you can get user's data by key like thi
 	upd_data = {'weather': logic.get_weather(location)} # assign user's data to pass forward and store
 	return States.WEATHER,upd_data
 	
-UI={States.START:{
+UI={
+States.START:{
 	'text':"Hello, wanna see some news?",
 	'buttons':[
 		{'yes, show me news':tgflow.action(show_news)}, 
@@ -122,6 +124,6 @@ UI={States.START:{
 							 # equivalent to tgflow.a(lambda(s): States.START)
 							 # or tgflow.action(lambda(i,s,**d):(i,States.START,d))
 	}
-	States.WEATHER:{...},		
-	States.NO_PERMISSION:{...},						 
+States.WEATHER:{...},		
+States.NO_PERMISSION:{...},						 
 
