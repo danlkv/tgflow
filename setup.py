@@ -2,7 +2,7 @@ from setuptools import setup
 setup(
       name = 'tgflow',
       packages = ['tgflow'],
-    version = '0.2.0',
+    version = '0.2.3',
       description = 'A declarative-style telegram bot framework',
       author = 'Danil Lykov',
       author_email = 'lkvdan@gmail.com',

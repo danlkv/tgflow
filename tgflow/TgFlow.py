@@ -131,7 +131,7 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     save_sd(States,Data)
     # registering callback triggers on buttons
     save_iactions(ui.get('b'))
-    save_kactions(ns,ui.get('kb'),ns)
+    save_kactions(ns,ui.get('kb'),ns,_id)
     print("tgflow: actions registration ended",Actions)
 
     # registering reaction triggers
@@ -180,6 +180,7 @@ def get_state(id,s):
 
 def save_iactions(ui):
     if isinstance(ui,action):
+        #TODO: assign actions to every user distinctly, as with butons
         Actions[str(ui)]=ui
     if isinstance(ui,dict):
         for k,v in ui.items():
@@ -187,17 +188,24 @@ def save_iactions(ui):
     elif isinstance(ui,list):
         d = [save_iactions(x) for x in ui ]
 # TODO: remove s argument
-def save_kactions(k,ui,s):
+def save_kactions(k,ui,s,_id):
     if isinstance(ui,action):
         # key format: State+ButtonName
-            #print('react to'+ui.react_to)
-            #Reaction_triggers.append((ui.react_to,ui))
-        Actions['kb_'+str(k)]=ui
+        if ui.react_to:
+            trigs = Reaction_triggers.get(_id)
+            if trigs:
+                Reaction_triggers[_id].append((ui.react_to,ui))
+            else:
+                Reaction_triggers.update({_id:[(ui.react_to,ui)]})
+            print("tgflow: reaction tgigger for %s registrated %s"%(str(_id),str(ui)))
+
+        else:
+            Actions['kb_'+str(k)]=ui
     if isinstance(ui,dict):
         for k,v in ui.items():
-            save_kactions(k,v,s)
+            save_kactions(k,v,s,_id)
     elif isinstance(ui,list):
-        ui = [save_kactions(k,x,s) for x in ui ]
+        ui = [save_kactions(k,x,s,_id) for x in ui ]
 
 def send(message,id):
     print("tgflow: sending message")
@@ -209,9 +217,10 @@ def send(message,id):
             reply_markup =markup)
 
 def update(messages,msg):
-    print("tgflow: updating message")
     for text,markup in messages:
         if text:
+            print("tgflow: updating message",text)
+            #TODO: check if text is new
             bot.edit_message_text(
                 text=text,
                 chat_id=msg.chat.id,
@@ -219,6 +228,7 @@ def update(messages,msg):
                 message_id=msg.message_id
             )
         if markup:
+            print("tgflow: updating markup",markup)
             bot.edit_message_reply_markup(
                 chat_id=msg.chat.id,
                 message_id=msg.message_id,
