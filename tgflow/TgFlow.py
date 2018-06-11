@@ -89,9 +89,10 @@ def message_handler(messages):
         # key format: kb_+ButtonName
         a = Actions.get('kb_'+str(msg.text))
         if not a:
-            for r,a_ in Reaction_triggers[msg.chat.id]:
-                if msg.__dict__.get(r):
-                    a = a_
+            if Reaction_triggers.get(msg.chat.id):
+                for r,a_ in Reaction_triggers[msg.chat.id]:
+                    if msg.__dict__.get(r):
+                        a = a_
         d = Data.get(msg.chat.id,def_data)
 
         messages = flow(a,s,d,msg,msg.chat.id)
@@ -134,18 +135,25 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     print("tgflow: actions registration ended",Actions)
 
     # registering reaction triggers
-    rc = ui.get('react')
+    rc = ui.get('react') or ui.get('react_to')
     if rc:
-        print("tgflow: reaction tgigger for %i registrated %s"%(i,str(rc)))
-        Reaction_triggers[_id].append((rc.react_to,rc))
+        trigs = Reaction_triggers.get(_id)
+        if trigs:
+            Reaction_triggers[_id].append((rc.react_to,rc))
+        else:
+            Reaction_triggers.update({_id:[(rc.react_to,rc)]})
+        print("tgflow: reaction tgigger for %s registrated %s"%(str(_id),str(rc)))
     # clearing reaction triggers if needed
     rc = ui.get('clear_trig')
     if rc:
         print("tgflow: reaction trigger clear",rc)
-        for r,a_ in Reaction_triggers[_id]:
-            #TODO: handle arrays of triggers
-            if rc == r:
-                Reaction_triggers[_id].remove((r,a_))
+        if Reaction_triggers.get(_id):
+            for r,a_ in Reaction_triggers[_id]:
+                #TODO: handle arrays of triggers
+                if rc == r:
+                    Reaction_triggers[_id].remove((r,a_))
+        else:
+            print("tgflow:WARN removing unset trigger",rc)
 
     # rendering message and buttons
     messages = render.render(ui)
@@ -182,11 +190,9 @@ def save_iactions(ui):
 def save_kactions(k,ui,s):
     if isinstance(ui,action):
         # key format: State+ButtonName
-        if ui.react_to:
-            print('react to'+ui.react_to)
-            Reaction_triggers.append((ui.react_to,ui))
-        else:
-            Actions['kb_'+str(k)]=ui
+            #print('react to'+ui.react_to)
+            #Reaction_triggers.append((ui.react_to,ui))
+        Actions['kb_'+str(k)]=ui
     if isinstance(ui,dict):
         for k,v in ui.items():
             save_kactions(k,v,s)
