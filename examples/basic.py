@@ -1,3 +1,7 @@
+# This is needed to import this module
+import sys
+sys.path.insert(0, '..')
+
 import tgflow as tgf
 from tgflow import TgFlow as tgf
 from tgflow import handles as h
@@ -13,26 +17,30 @@ class States(Enum):
 
 UI = {
     States.START:
-    {'t':'hello',
+    {'t':'Hello, User!\n Here\'s what you can do:',
      'b': [
-         {'show info':tgf.action(States.INFO)},
-          {'set my favourite':h.action(States.FAV)}
+         {'show my info':tgf.action(States.INFO)},
+         {'set my favourite':h.action(States.FAV)}
      ]},
-    States.INFO:{
-        't':'Please send me name of your favourite thing',
-        'b':[{'set foo':(lambda input,data: (States.THANKS,{'foo':'var'+data['foo']}))}]
-    },
     States.FAV:{
-        't':h.st('Your fav is %s','fav'),
+        't':'Please send me name of your favourite thing',
+        'b':[{'my favourite is star':(lambda input,data: (States.THANKS,{'fav':'star'}))}],
         'react':h.action(
             lambda i: (States.THANKS,{'fav':i.text}),
             react_to = 'text'),
     },
+    States.INFO:{
+        't':h.st('Your fav is %s','fav'),
+        'b': [
+            {'back to start':tgf.action(States.START)},
+            {'overwrite favourite':h.action(States.FAV)}
+        ]
+    },
     States.THANKS:{
-        't':h.st('Thanks! I will remember it foo %s','foo'),
+        't':h.st('Thanks! I will remember your %s','fav'),
          'b': [
              {'show info':h.action(States.INFO,update_msg=True)},
-          {'set another favourite':h.action(States.FAV,update_msg=True)}
+             {'set another favourite':h.action(States.FAV,update_msg=True)}
          ],
         'clear_trig':'text'},
     }
