@@ -2,6 +2,7 @@ import inspect
 from inspect import signature
 from enum import Enum
 import pprint
+import urllib
 pp = pprint.PrettyPrinter(indent=4)
 
 class post():
@@ -40,12 +41,12 @@ class action():
             except TypeError:
                 return "<+action: "+self.f.__repr__()+">"
     def get_register_key(self):
-        str = self.__repr__()
+        s = self.__repr__()
         #
-        # TODO: Don't just trim, will cause collisions!!!
+        # TODO: Don't just truncate, will cause collisions!!!
         #
-        # following restriction is dictaded by telegram api
-        return str[:64]
+        # btw, following restriction is dictaded by telegram api
+        return urllib.parse.quote_plus(s)[:64]
 
     def call(self,i,s,**d):
         # TODO: check signature
