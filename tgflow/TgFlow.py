@@ -97,6 +97,7 @@ def message_handler(messages):
                         a = a_
         d = Data.get(msg.chat.id,def_data)
 
+# following restriction is dictaded by telegram api
         messages = flow(a,s,d,msg,msg.chat.id)
         send(messages,msg.chat.id)
 
@@ -181,7 +182,8 @@ def get_state(id,s):
 def save_iactions(ui):
     if isinstance(ui,action):
         #TODO: assign actions to every user distinctly, as with butons
-        Actions[str(ui)]=ui
+        key = ui.get_register_key()
+        Actions[key]=ui
     if isinstance(ui,dict):
         for k,v in ui.items():
             save_iactions(v)
@@ -214,4 +216,5 @@ def send(message,id):
 
 def update(messages,msg):
     for text,markup in messages:
+        print('adf', markup)
         api.update(msg,text=text,markup=markup)

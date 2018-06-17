@@ -59,9 +59,12 @@ def render(ui):
     kbb =ui.get('kb')
     if butns:
         butns = [[
-        telebot.types.InlineKeyboardButton(text=bt,
-                                           callback_data=str(s))
-                    for bt,s in butrow.items()]
+        telebot.types.InlineKeyboardButton(
+            text=bt,
+            # TODO: s should be of type handle.action !
+            callback_data=act.get_register_key()
+        )
+                    for bt,act in butrow.items()]
                         for butrow in butns]
         imarkup = telebot.types.InlineKeyboardMarkup(row_width=1)
         imarkup.add(*sum(butns,[]))

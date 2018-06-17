@@ -39,6 +39,13 @@ class action():
                 return "<+action: "+self.f.__name__+str(signature(self.f))+">"
             except TypeError:
                 return "<+action: "+self.f.__repr__()+">"
+    def get_register_key(self):
+        str = self.__repr__()
+        #
+        # TODO: Don't just trim, will cause collisions!!!
+        #
+        # following restriction is dictaded by telegram api
+        return str[:64]
 
     def call(self,i,s,**d):
         # TODO: check signature
