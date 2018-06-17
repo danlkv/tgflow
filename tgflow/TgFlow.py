@@ -1,15 +1,16 @@
-import telebot
+#import telebot
 import hashlib
 from . import handles
 from . import render
 import pickle,time
+from .api.tg import telegramAPI
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 action = handles.action
 
-bot,key = None,None
+api,key = None,None
 def_state = None
 def_data= None
 States = {}
@@ -47,9 +48,11 @@ try:
 except FileNotFoundError:
     print("tgflow: creating data.p and states.p files")
 
-def configure(token=None, state=None, data={}):
+def configure(token=None, state=None,
+              apiModel=telegramAPI, data={}
+             ):
     global def_state,def_data
-    global bot,key
+    global api,key
     if not token:
         raise Exception("tgflow needs your bot token")
     if not state:
@@ -59,22 +62,21 @@ def configure(token=None, state=None, data={}):
     def_data =data
 
     # create bot and assign handlers
-    bot = telebot.TeleBot(key)
-    bot.set_update_listener(message_handler)
-    set_callback_handler()
+    api = apiModel(key)
+    api.set_message_handler(message_handler)
+    api.set_callback_handler(callback_handler)
 
 def start(ui):
-    global bot,UI
+    global api,UI
     UI = ui
     print("tgflow: listening")
-    while True:
-        try:
-            bot.polling(none_stop=True)
-        except Exception as e:
-            print("tgflow:polling error",e)
-            time.sleep(10)
+    try:
+        api.start(none_stop=True)
+    except Exception as e:
+        print("tgflow:polling error",e)
 
 def get_file_link(file_id):
+    # TODO: implement this in api
     finfo = bot.get_file(file_id)
     l='https://api.telegram.org/file/bot%s/%s'%(
         key,finfo.file_path)
@@ -100,21 +102,19 @@ def message_handler(messages):
 
 
 
-def set_callback_handler():
-    @bot.callback_query_handler(func=lambda call: True)
-    def callback_handler(call):
-        s = States.get(call.message.chat.id,def_state)
-        a = Actions.get(call.data)
-        d = Data.get(call.message.chat.id,def_data)
-        messages = flow(a,s,d,call,call.message.chat.id)
-        if a:
-            if not a.update:
-                send(messages,call.message.chat.id)
-            else:
-                update(messages, call.message)
-        else:
-            print("tgflow: Warning: no action found but should")
+def callback_handler(call):
+    s = States.get(call.message.chat.id,def_state)
+    a = Actions.get(call.data)
+    d = Data.get(call.message.chat.id,def_data)
+    messages = flow(a,s,d,call,call.message.chat.id)
+    if a:
+        if not a.update:
             send(messages,call.message.chat.id)
+        else:
+            update(messages, call.message)
+    else:
+        print("tgflow: Warning: no action found but should")
+        send(messages,call.message.chat.id)
 
 def gen_state_msg(i,ns,nd,_id,state_upd=True):
     pre_a = UI.get(ns).get('prepare')
@@ -210,26 +210,8 @@ def save_kactions(k,ui,s,_id):
 def send(message,id):
     print("tgflow: sending message")
     for text,markup in message:
-        bot.send_message(
-            text=text,
-            chat_id=id,
-            parse_mode='Markdown',
-            reply_markup =markup)
+        api.send(id,text=text,markup=markup)
 
 def update(messages,msg):
     for text,markup in messages:
-        if text:
-            print("tgflow: updating message",text)
-            #TODO: check if text is new
-            bot.edit_message_text(
-                text=text,
-                chat_id=msg.chat.id,
-                parse_mode='Markdown',
-                message_id=msg.message_id
-            )
-        if markup:
-            print("tgflow: updating markup",markup)
-            bot.edit_message_reply_markup(
-                chat_id=msg.chat.id,
-                message_id=msg.message_id,
-                reply_markup=markup)
+        api.update(msg,text=text,markup=markup)
