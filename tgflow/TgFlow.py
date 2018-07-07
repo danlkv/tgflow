@@ -49,7 +49,9 @@ except FileNotFoundError:
     print("tgflow: creating data.p and states.p files")
 
 def configure(token=None, state=None,
-              apiModel=telegramAPI, data={}
+              apiModel=telegramAPI, data={},
+              group_id=None
+
              ):
     global def_state,def_data
     global api,key
@@ -62,9 +64,12 @@ def configure(token=None, state=None,
     def_data =data
 
     # create bot and assign handlers
-    api = apiModel(key)
+    # Group Id is not used in telegram
+    api = apiModel(key,group_id=group_id)
+
     api.set_message_handler(message_handler)
     api.set_callback_handler(callback_handler)
+
 
 def start(ui):
     global api,UI

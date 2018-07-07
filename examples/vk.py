@@ -37,7 +37,7 @@ tgf.configure(token=key,
               state=States.START,
               apiModel=vkAPI,
               data={"foo":'bar'},
-              group=group
+              group_id=group
              )
 tgf.start(ui)
 
