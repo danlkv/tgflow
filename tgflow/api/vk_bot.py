@@ -30,25 +30,49 @@ class VKBot:
             print("HHAHHL")
             print(event)
             messages = []
+            call = None
             for upd in event.get('updates',[]):
                 if upd.get('type')=='message_new':
-                    msg = upd.get('object')
-                    text = msg.get('text')
-                    chat_id = msg.get('peer_id')
+                    msg_object = upd.get('object')
+                    text = msg_object.get('text')
+                    data = msg_object.get('payload')
+                    chat_id = msg_object.get('peer_id')
+
                     msg = Message(text)
+                    msg.object = msg_object
+                    msg.object = upd.g
                     msg.chat = Chat(chat_id)
+                    if data:
+                        call = VkCallback(
+                            # FUCK U VK
+                            data = json.loads(data),
+                            message = msg
+                        )
                     messages.append(msg)
                 else:
                     pass
-            self.message_handler(messages)
+            if call:
+                self.callback_handler(call)
+            else:
+                self.message_handler(messages)
 
     def send_message(self,chat_id,text,**args):
-        r = self.make_request(
-            'messages.send',
-            {
+        params = {
                 'peer_id':chat_id,
                 'message':text,
             }
+        mk = args.get('reply_markup')
+        print(mk.get_json())
+        if mk:
+            k =  mk.get_json()
+            params.update({
+               # 'keyboard':mk.get_json()
+                'keyboard':k
+            })
+
+        r = self.make_request(
+            'messages.send',
+            params
         )
         return r
 
@@ -98,6 +122,7 @@ class VKBot:
         r = requests.get(ep,params=params)
         # TODO: add error handling
         js = r.json()
-        print(js)
+        print(r)
+        print(r.text)
         return js.get('response')
 

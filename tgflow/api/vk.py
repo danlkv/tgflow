@@ -1,5 +1,6 @@
 from .base import tgfAPI
 from .vk_bot import VKBot
+from .Types import *
 
 class vkAPI(tgfAPI):
     def __init__(self,token):
@@ -21,19 +22,13 @@ class vkAPI(tgfAPI):
         # here msg is the type set_message_handler pass
         text =args.get('text')
         markup=args.get('markup')
-        if text:
-            self.bot.edit_message_text(
-                text=text,
-                chat_id=msg.chat.id,
-                parse_mode='Markdown',
-                message_id=msg.message_id,
-            )
-        if markup:
-            print("tgflow: updating markup",markup)
-            self.bot.edit_message_reply_markup(
-                chat_id=msg.chat.id,
-                message_id=msg.message_id,
-                reply_markup=markup)
+        id = msg.chat.id
+        self.bot.send_message(
+            text=text,
+            chat_id=id,
+            parse_mode='Markdown',
+            reply_markup =markup
+        )
 
     def set_message_handler(self,clb):
         self.bot.set_message_handler(clb)
@@ -41,4 +36,12 @@ class vkAPI(tgfAPI):
     def set_callback_handler(self,clb):
         # is there analog to upd_listener in telebot?
         self.bot.set_callback_handler(clb)
+
+    def KeyboardButton(self,**args):
+        return VkKeyboardButton(
+            **args
+        )
+    def KeyboardMarkup(self,buttons=None,**args):
+        mk = VkKeyboard(buttons=buttons, **args)
+        return mk
 
