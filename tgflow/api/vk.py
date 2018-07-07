@@ -3,9 +3,9 @@ from .vk_bot import VKBot
 from .Types import *
 
 class vkAPI(tgfAPI):
-    def __init__(self,token):
+    def __init__(self,token,**args):
         super().__init__(token)
-        self.bot = VKBot(token)
+        self.bot = VKBot(token,args.get('group_id'))
 
     def start(self,**args):
         self.bot.start_polling(**args)
@@ -29,6 +29,10 @@ class vkAPI(tgfAPI):
             parse_mode='Markdown',
             reply_markup =markup
         )
+
+    def set_group_id(self,gid):
+        # You should call this just after api creation
+        self.bot.group = gid
 
     def set_message_handler(self,clb):
         self.bot.set_message_handler(clb)

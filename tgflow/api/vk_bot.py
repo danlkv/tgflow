@@ -6,9 +6,9 @@ class VKBot:
     ep = 'https://api.vk.com/method'
     version = '5.80'
 
-    def __init__(self,token):
+    def __init__(self,token,group):
         self.token = token
-        group='168613369'
+        self.group = group
         self.get_longpoll_server(group)
         #self.check_longpoll()
         self.poller = Longpoll(
@@ -27,8 +27,6 @@ class VKBot:
             'wait':25
         }
         for event in self.poller.event_emmitter(addr,params):
-            print("HHAHHL")
-            print(event)
             messages = []
             call = None
             for upd in event.get('updates',[]):
@@ -40,7 +38,6 @@ class VKBot:
 
                     msg = Message(text)
                     msg.object = msg_object
-                    msg.object = upd.g
                     msg.chat = Chat(chat_id)
                     if data:
                         call = VkCallback(

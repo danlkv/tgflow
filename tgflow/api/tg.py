@@ -2,7 +2,7 @@ from .base import tgfAPI
 import telebot
 
 class telegramAPI(tgfAPI):
-    def __init__(self,token):
+    def __init__(self,token,**args):
         super().__init__(token)
         self.bot = telebot.TeleBot(token)
 
