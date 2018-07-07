@@ -37,7 +37,7 @@ class VKBot:
                     chat_id = msg_object.get('peer_id')
 
                     msg = Message(text)
-                    msg.object = msg_object
+                    msg.load_object( msg_object)
                     msg.chat = Chat(chat_id)
                     if data:
                         call = VkCallback(
