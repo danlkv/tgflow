@@ -44,3 +44,13 @@ class telegramAPI(tgfAPI):
         def stub(call):
             clb(call)
 
+    def KeyboardButton(self,**args):
+        return telebot.types.InlineKeyboardButton(
+            **args
+        )
+    def KeyboardMarkup(self,buttons=None,**args):
+        mk = telebot.types.InlineKeyboardMarkup(
+            **args)
+        mk.add(*buttons)
+        return mk
+
