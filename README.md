@@ -127,5 +127,7 @@ def show_weather(input,location=None): # you can get user's data by key like thi
 	user_id = input.message.from.id
 	upd_data = {'weather': logic.get_weather(location)} # assign user's data to pass forward and store
 	return States.WEATHER,upd_data
-	
+```
+documentation is still in development
 
+Please check out examples folder to see usage and full set of features!
