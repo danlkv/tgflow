@@ -100,6 +100,9 @@ def message_handler(messages):
                 for r,a_ in Reaction_triggers[msg.chat.id]:
                     if msg.__dict__.get(r):
                         a = a_
+                    if r=='all':
+                        a = a_
+
         d = Data.get(msg.chat.id,def_data)
 
 # following restriction is dictaded by telegram api

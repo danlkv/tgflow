@@ -4,6 +4,11 @@ class Message():
         self.text=text
         self.chat = Chat()
         self.object = {}
+        self.attachments = []
+
+    def load_object(self,obj):
+        self.object = obj
+        self.attachments = obj.get('attachments',[])
 
 class Chat():
     def __init__(self,id=None):
