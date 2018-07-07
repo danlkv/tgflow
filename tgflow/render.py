@@ -1,5 +1,6 @@
 import json,pprint,copy,telebot
 from . import handles as h
+from . import TgFlow as tgf
 pp = pprint.PrettyPrinter(indent=5)
 
 def rdict(d,a):
@@ -59,15 +60,17 @@ def render(ui):
     kbb =ui.get('kb')
     if butns:
         butns = [[
-        telebot.types.InlineKeyboardButton(
+        tgf.api.KeyboardButton(
             text=bt,
             # TODO: s should be of type handle.action !
             callback_data=act.get_register_key()
         )
                     for bt,act in butrow.items()]
                         for butrow in butns]
-        imarkup = telebot.types.InlineKeyboardMarkup(row_width=1)
-        imarkup.add(*sum(butns,[]))
+        imarkup = tgf.api.KeyboardMarkup(
+            row_width=1,
+            buttons=sum(butns,[])
+        )
     else:
         imarkup = None
     if kbb:
