@@ -51,7 +51,7 @@ pip3 install tgflow
 * Installation from source (requires git):
 
 ```
-git clone https://github.com/DaniloZZZ
+git clone https://github.com/DaniloZZZ/tgflow
 cd tgflow
 python3 setup.py install
 ```
