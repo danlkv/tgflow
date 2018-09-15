@@ -1,5 +1,6 @@
 #import telebot
 import hashlib
+from enum import Enum
 from . import handles
 from . import render
 import pickle,time
@@ -115,6 +116,7 @@ def callback_handler(call):
     s = States.get(call.message.chat.id,def_state)
     a = Actions.get(call.data)
     d = Data.get(call.message.chat.id,def_data)
+    print("tgflow: got callback. State:",s)
     messages = flow(a,s,d,call,call.message.chat.id)
     if a:
         if not a.update:
@@ -129,6 +131,7 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     pre_a = UI.get(ns).get('prepare')
     if pre_a:
        # call user-defined data perparations. 
+       print("tgflow: found a prep function, calling...")
        nd = pre_a(i,ns,**nd)
 
     args = {'s':ns,'d':nd}
@@ -141,7 +144,7 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     # registering callback triggers on buttons
     save_iactions(ui.get('b'))
     save_kactions(ns,ui.get('kb'),ns,_id)
-    print("tgflow: actions registration ended",Actions)
+    print("tgflow: actions registered:\n",Actions)
 
     # registering reaction triggers
     rc = ui.get('react') or ui.get('react_to')
@@ -177,11 +180,14 @@ def flow(a,s,d,i,_id):
     if a:
         ns,nd = a.call(i,s,**d)
         print('tgflow: called action:'+str(a))
+        if isinstance(s,Enum) and isinstance(ns,Enum):
+            print ('tgflow: states change %s --> %s'%(s.name,ns.name))
+        else:
+            print ('tgflow: states change %s --> %s'%(s,ns))
     else:
-        print('tgflow: no action found for message. State unchanged')
+        print('tgflow: no action found for message. %s unchanged'%s)
         ns,nd = s,d
 
-    print ('tgflow: new state',ns)
     return gen_state_msg(i,ns,nd,_id)
 
 def get_state(id,s):
@@ -224,5 +230,5 @@ def send(message,id):
 
 def update(messages,msg):
     for text,markup in messages:
-        print('adf', markup)
+        print("tgflow: updating message")
         api.update(msg,text=text,markup=markup)
