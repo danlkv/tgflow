@@ -10,7 +10,7 @@ class Callback():
         self.message=msg
         self.data = data
 
-BUTTON_KEY = '\\'
+BUTTON_KEY = '-'
 START_KB_IDX = 1
 
 class CLIBot:
@@ -39,7 +39,6 @@ class CLIBot:
         mk = args.get('reply_markup')
         butnames = []
         if mk:
-            print(mk)
             kb,i = "",START_KB_IDX
             for b in mk:
                 butnames.append(BUTTON_KEY+"%i:%s"%(i,b[0]))
@@ -47,7 +46,7 @@ class CLIBot:
                 i+=1
         kb=tabeled(butnames)
 
-        print("<New message>>")
+        print("\ncli|bot:>>new message>>")
         msg = bordered(text+"\n"+kb)
         print(msg)
         return text
@@ -60,7 +59,6 @@ class CLIBot:
 def tabeled(texts):
     width = max(len(t) for t in texts)
     res = ['┌' + '─' * width + '┐']
-    print(texts)
     if len(texts)>1:
         for text in texts[:-1]:
             res.append('│' + (text + ' ' * width)[:width] + '│')

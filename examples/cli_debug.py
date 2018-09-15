@@ -5,7 +5,7 @@ sys.path.insert(0, '..')
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from tgflow import TgFlow as tgf
+import tgflow as tgf
 from tgflow import handles as h
 from tgflow.api.cli import cliAPI
 from enum import Enum
@@ -21,39 +21,31 @@ ui = {
         't':'Hello there!',
         'b':[
          {'show my info':tgf.action(States.INFO)},
-        ]
+        ],
+        'prepare':lambda i,s,**d: {'info':"Custom start info"},
     },
     States.INFO:{
-        't':'INFOOOOOO',
+        't':tgf.post(lambda s,**d: d['info']),
         'b': [
             {'back to start':tgf.action(States.START)},
             {'make a baloon':tgf.action(States.BALOON)},
         ]
     },
     States.BALOON:{
-        't':"""     ,-*****-.
-
-           ,'      _ `.
-
-          /       )_)  \\
-
-         :              :
-
-         \              /
-
-          \            /
-
-           `.        ,'
-
-             `.    ,'
-
-               `.,'
-
-                /\`.   ,-._
-
-                    `-'         hjw
-
-
+        't':"""
+       _-.:.-_
+    .'-/_:-;_\- .
+   /_'/__ |__'._'\\
+  '__(__tgflow )_ '
+  (__(___ )___ )__)   
+  .__(___.(__  )_ .
+   \__\__ )__ /__/
+    -__\ _(_ -_.
+     \ _\_)./_/
+       \_.|_./
+        |_|_|
+         _
+         [_] 
         """,
         'b':[
             {'to start':tgf.action(States.START)}
