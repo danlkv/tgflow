@@ -8,6 +8,7 @@ logging.basicConfig(level=logging.DEBUG)
 import tgflow as tgf
 from tgflow import handles as h
 from enum import Enum
+from tgflow.api.cli import cliAPI
 key='539066078:AAHCUsr8ZoP9JtP5KqOMuL7f_UoFyyH6wik'
 
 class States(Enum):
@@ -79,6 +80,7 @@ UI = {
 tgf.configure(
     token=key,
     state=States.START,
+    #apiModel = cliAPI,
              )
 tgf.start(UI)
 
