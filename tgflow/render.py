@@ -37,7 +37,7 @@ def flatten(lis):
     return new_lis
 
 def prep(ui,args):
-    print("tgflow: preprocessing ui")
+    print("tgflow: preprocessing ui for state",args.get('s'))
     ## SUBSTITUTION
     # support for full names
     ui['t']=ui.get('t') or ui.get('text')
