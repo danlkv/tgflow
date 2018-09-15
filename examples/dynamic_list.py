@@ -34,16 +34,18 @@ def database_call(i,s,**d):
 def gen_keyboard(s,**d):
     kb_data=d.get('kb')
 
+    def gen_handler(name,desc):
+        return lambda: (States.ITEM,
+                        {"ItemText":name+"\n"+desc})
     keyboard = {
         # the format is ad in UI - {"NAME":tgf.action}
-        name:tgf.action(
-            lambda: 
-            (States.ITEM,
-             {"ItemText":name+"\n"+desc})
-        )
+        name: tgf.action(
+            gen_handler(name,desc)
+            )
         for name,desc in kb_data
     }
     # forward to THANKS state and update data. Upd_id is used in THANKS
+    print (keyboard)
     return keyboard
 
 UI = {

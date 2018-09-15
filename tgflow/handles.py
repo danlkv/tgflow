@@ -33,11 +33,13 @@ class action():
         self.update = update_msg
         self.ns = ns
     def __repr__(self):
+        def gen_uid(o):
+            return hex(int(int(id(o))/16/7))[-4:]
         if self.ns:
             return "<+action: state "+self.ns.__repr__()+">"
         else:
             try:
-                return "<+action: "+self.f.__name__+str(signature(self.f))+">"
+                return "<+action: "+self.f.__name__+str(signature(self.f))+"@%s>"%gen_uid(self.f)
             except TypeError:
                 return "<+action: "+self.f.__repr__()+">"
     def get_register_key(self):
@@ -91,11 +93,13 @@ def safeget(dct,keylist,default=None):
         except KeyError:
             return default
     return dct
+
 def st(string,key,default=None):
     if isinstance(key,str):
         return post(lambda s,**d: string%d.get(key,default))
     else:
         return post(lambda s,**d: string%safeget(d,key,default))
+
 def obj(o):
     return  post(lambda s,**d: o)
 
