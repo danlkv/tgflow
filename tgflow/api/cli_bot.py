@@ -10,7 +10,7 @@ class Callback():
         self.message=msg
         self.data = data
 
-BUTTON_KEY = '-'
+BUTTON_KEY = '_'
 START_KB_IDX = 1
 
 class CLIBot:
