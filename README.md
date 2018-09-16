@@ -32,7 +32,7 @@ tgflow.start(states)
 
 * [Getting started.](#getting-started)
 * [Writing your first bot](#writing-your-first-bot)
-* [Using different APIs](#Using-different-APIs)
+* [Using different APIs](#using-different-apis)
 * [Architecture](#architecture)
 * [Types](#types)
   * [Actions](#actions)
