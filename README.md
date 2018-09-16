@@ -14,23 +14,25 @@ _Here's how you declare a vanilia counter bot:_
 
 ```python
 import tgflow 
-
-tgflow.configure(token='TOKEN',state='start') # display 'start' state by default
-tgflow.start({
+states = {
 'start':{
     'text':tgflow.paste("Hello, i'm hooray bot. Hooray %i times!", 
-                   'count',default=1), # pass 'count' value to '%i' in string
+                   'count',default=1), # paste 'count' value to '%i' in string,
+		   	               # assign it as text to send
     'buttons':[{
-        'Say hooray':lambda count=1:
-        ('start',{'count':count+1}) # display 'start' state, increment 'count' value
+        'Say hooray':lambda count=1: #tgflow will pass 'count' if it's set before
+        ('start',{'count':count+1}) # go to 'start' state, set 'count' value
     }]
+  }
 }
-})
+tgflow.configure(token='TOKEN',state='start') # display 'start' state by default
+tgflow.start(states)
 
 ```
 
 * [Getting started.](#getting-started)
 * [Writing your first bot](#writing-your-first-bot)
+* [Using different APIs](#Using-different-APIs)
 * [Architecture](#architecture)
 * [Types](#types)
   * [Actions](#actions)
@@ -133,7 +135,32 @@ def show_weather(input,location=None): # you can get user's data by key like thi
 	upd_data = {'weather': logic.get_weather(location)} # assign user's data to pass forward and store
 	return States.WEATHER,upd_data
 ```
+## Using different APIs
+Changing backend for your bot is as easy as
+```
+import tgflow as tgf
+from tgflow.api.vk import vkAPI
 
+tgf.configure(token="",state='start',apiModel=vkAPI)
+```
+Currently avliable models:
+- telegramAPI (default)
+- vkAPI
+- cliAPI
+
+### cliAPI
+this stuff is super useful: you can emulate the bot right in cli!
+
+Just try it, or check out the examples. 
+To "press" a button hit \_N  where N - number of button
+
+And you can test the bot in one command using pipes!
+Gess what this command does?
+```
+echo -e "hello\n_1\n_2\n" | python3 cli_debug.py 
+```
+It sends "hello", then presses first, then second button.
+(check out /examples/cli_debug.py file)
 ## Architecture
 
 The event handling process is following:
