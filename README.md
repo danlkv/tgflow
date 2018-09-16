@@ -149,10 +149,10 @@ Currently avliable models:
 - cliAPI
 
 ### cliAPI
-this stuff is super useful: you can emulate the bot right in cli!
+this stuff is super useful: you can emulate the bot right in your terminal!
 
 Just try it, or check out the examples. 
-To "press" a button hit \_N  where N - number of button
+To "press" a button hit _N  where N - number of button
 
 And you can test the bot in one command using pipes!
 Gess what this command does?
