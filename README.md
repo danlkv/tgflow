@@ -3,6 +3,7 @@
 <p align="center">
 <img  src="https://raw.githubusercontent.com/DaniloZZZ/tgflow/master/assets/fgflow.png" width="200"/>
 </p>
+
 <p align="center">A declarative-style Bot framework
 
 tgflow supports <a href="https://core.telegram.org/bots/api">Telegram Bot API</a> 
@@ -150,7 +151,9 @@ Currently available models:
 
 ### cliAPI
 this stuff is super useful: you can emulate the bot right in your terminal!
-
+<p>
+<img  src="https://github.com/DaniloZZZ/tgflow/blob/master/assets/out-2.gif" width="600"/>
+</p>
 Just try it, or check out the examples. 
 To "press" a button hit _N  where N - number of button
 
