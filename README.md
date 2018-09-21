@@ -8,9 +8,9 @@
 tgflow supports <a href="https://core.telegram.org/bots/api">Telegram Bot API</a> 
 and <a href="https://vk.com/dev/bots_longpoll">Vk Bot API</a>. Looking forward to add Slack!
 
-In onle line: use this framework to _declare_ bot logic and launch it on _multiple platforms_ seamlessly.
+In one line: use this framework to _declare_ bot logic and launch it on _multiple platforms_ seamlessly.
 
-_Here's how you declare a vanilia counter bot:_
+_Here's how you declare a vanilla counter bot:_
 
 ```python
 import tgflow 
@@ -68,9 +68,9 @@ It is generally recommended to use the first option.
 
 ## Writing your first bot
 Tgflow is a state-based framework. Each user has a state and data, and each state corresponds to some text and buttons - generally speaking, UI.
-It's a good way to imagine your bot as some shema like this:
+It's a good way to imagine your bot as some schema like this:
 
-![ a sample shema](https://raw.githubusercontent.com/DaniloZZZ/tgflow/master/assets/shema.png)
+![ a sample schema](https://raw.githubusercontent.com/DaniloZZZ/tgflow/master/assets/shema.png)
 
 Here's how you to declare states for your bot:
 ```python
@@ -87,15 +87,15 @@ Basically, you define state names in separate file and include it everywhere. Yo
 Then, for each state you create a dictionary that defines UI and some simple actions. To handle user input you define your functions and assign them to buttons in UI dict.  You store user-specific data in a dictionary which is passed to you by 'd' argument. Here is a brief example of usage:
 ```python
 import tgflow
-from States import States # here you defined your states
+from States import States # here you define your states
 import logic # some arbitrary code with buisness logic
 
 UI={
 States.START:{
 	'text':"Hello, wanna see some news?",
 	'buttons':[
-		{'yes, show me news':tgflow.action(show_news)}, 
-		{'no, tell me the weather':tgflow.action(show_weather)}# you can also use tgflow.a as shortcut
+		{'yes, show me the news':tgflow.action(show_news)}, 
+		{'no, tell me the weather':tgflow.action(show_weather)}# you can also use tgflow.a as a shortcut
 		]
 	},
 	States.NEWS:{
@@ -143,7 +143,7 @@ from tgflow.api.vk import vkAPI
 
 tgf.configure(token="",state='start',apiModel=vkAPI)
 ```
-Currently avliable models:
+Currently available models:
 - telegramAPI (default)
 - vkAPI
 - cliAPI
@@ -155,7 +155,7 @@ Just try it, or check out the examples.
 To "press" a button hit _N  where N - number of button
 
 And you can test the bot in one command using pipes!
-Gess what this command does?
+Guess what this command does?
 ```
 echo -e "hello\n_1\n_2\n" | python3 cli_debug.py 
 ```
@@ -183,7 +183,7 @@ tgfow.post
 ```
 
 
-they're bost defined in <a href="https://github.com/DaniloZZZ/tgflow/blob/master/tgflow/handles.py"> handles.py</a>
+they're both defined in <a href="https://github.com/DaniloZZZ/tgflow/blob/master/tgflow/handles.py"> handles.py</a>
 and, to be fair, are quite similar 
 
 helpers:
@@ -196,7 +196,7 @@ tgflow.choose		# use dict to paste string by key from data
 ### Actions
 
 ```
-a = tgfow.action(clb_function)
+a = tgflow.action(clb_function)
 # function should no more than 3 positional arguments state and data and return new_state or (new_state,new_data)
 # you can use keys from dict keys as argument names - tgflow will pass them for you
 ```
@@ -212,7 +212,7 @@ All interactions with outer world is recommended to perform in prepare. To set p
 ### Rendering
 
 ```
-p = tgfow.post(function)
+p = tgflow.post(function)
 # function should take 2 arguments state and data and return string or object that will be pasted instead of post object
 ```
 Any data formatting, string interpolation is done here
