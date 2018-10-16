@@ -6,9 +6,12 @@ class VKBot:
     ep = 'https://api.vk.com/method'
     version = '5.80'
 
-    def __init__(self,token,group):
+    def __init__(self,token,group,
+            lp_ep='groups.getLongPollServer'):
         self.token = token
         self.group = group
+        self.get_longpoll_ep = lp_ep
+
         self.get_longpoll_server(group)
         #self.check_longpoll()
         self.poller = Longpoll(
@@ -30,6 +33,7 @@ class VKBot:
             messages = []
             call = None
             for upd in event.get('updates',[]):
+                print(upd)
                 if upd.get('type')=='message_new':
                     msg_object = upd.get('object')
                     text = msg_object.get('text')
@@ -59,8 +63,8 @@ class VKBot:
                 'message':text,
             }
         mk = args.get('reply_markup')
-        print(mk.get_json())
         if mk:
+            print(mk.get_json())
             k =  mk.get_json()
             params.update({
                # 'keyboard':mk.get_json()
@@ -81,12 +85,14 @@ class VKBot:
 
     def get_longpoll_server(self,group):
         print("getting longpoll server addr")
-        s = self.make_request('groups.getLongPollServer',
+        s = self.make_request(self.get_longpoll_ep,
                           {
                             'group_id':group
                           }
                          )
         server,key = s.get('server'),s.get('key')
+        if server[:4]!='http':
+            server='https://'+server
         # Assign the props to self
         if (server and key):
             self.longpoll_server, self.longpoll_key = server,key
@@ -116,6 +122,7 @@ class VKBot:
             'v':self.version
         }
         params.update(method_params)
+        print(ep,params)
         r = requests.get(ep,params=params)
         # TODO: add error handling
         js = r.json()
