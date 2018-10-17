@@ -3,34 +3,37 @@
 <p align="center">
 <img  src="https://raw.githubusercontent.com/DaniloZZZ/tgflow/master/assets/fgflow.png" width="200"/>
 </p>
+
 <p align="center">A declarative-style Bot framework
 
 tgflow supports <a href="https://core.telegram.org/bots/api">Telegram Bot API</a> 
 and <a href="https://vk.com/dev/bots_longpoll">Vk Bot API</a>. Looking forward to add Slack!
 
-In onle line: use this framework to _declare_ bot logic and launch it on _multiple platforms_ seamlessly.
+In one line: use this framework to _declare_ bot logic and launch it on _multiple platforms_ seamlessly.
 
-_Here's how you declare a vanilia counter bot:_
+_Here's how you declare a vanilla counter bot:_
 
 ```python
 import tgflow 
-
-tgflow.configure(token='TOKEN',state='start') # display 'start' state by default
-tgflow.start({
+states = {
 'start':{
     'text':tgflow.paste("Hello, i'm hooray bot. Hooray %i times!", 
-                   'count',default=1), # pass 'count' value to '%i' in string
+                   'count',default=1), # paste 'count' value to '%i' in string,
+		   	               # assign it as text to send
     'buttons':[{
-        'Say hooray':lambda count=1:
-        ('start',{'count':count+1}) # display 'start' state, increment 'count' value
+        'Say hooray':lambda count=1: #tgflow will pass 'count' if it's set before
+        ('start',{'count':count+1}) # go to 'start' state, set 'count' value
     }]
+  }
 }
-})
+tgflow.configure(token='TOKEN',state='start') # display 'start' state by default
+tgflow.start(states)
 
 ```
 
 * [Getting started.](#getting-started)
 * [Writing your first bot](#writing-your-first-bot)
+* [Using different APIs](#using-different-apis)
 * [Architecture](#architecture)
 * [Types](#types)
   * [Actions](#actions)
@@ -66,9 +69,9 @@ It is generally recommended to use the first option.
 
 ## Writing your first bot
 Tgflow is a state-based framework. Each user has a state and data, and each state corresponds to some text and buttons - generally speaking, UI.
-It's a good way to imagine your bot as some shema like this:
+It's a good way to imagine your bot as some schema like this:
 
-![ a sample shema](https://raw.githubusercontent.com/DaniloZZZ/tgflow/master/assets/shema.png)
+![ a sample schema](https://raw.githubusercontent.com/DaniloZZZ/tgflow/master/assets/shema.png)
 
 Here's how you to declare states for your bot:
 ```python
@@ -85,15 +88,15 @@ Basically, you define state names in separate file and include it everywhere. Yo
 Then, for each state you create a dictionary that defines UI and some simple actions. To handle user input you define your functions and assign them to buttons in UI dict.  You store user-specific data in a dictionary which is passed to you by 'd' argument. Here is a brief example of usage:
 ```python
 import tgflow
-from States import States # here you defined your states
+from States import States # here you define your states
 import logic # some arbitrary code with buisness logic
 
 UI={
 States.START:{
 	'text':"Hello, wanna see some news?",
 	'buttons':[
-		{'yes, show me news':tgflow.action(show_news)}, 
-		{'no, tell me the weather':tgflow.action(show_weather)}# you can also use tgflow.a as shortcut
+		{'yes, show me the news':tgflow.action(show_news)}, 
+		{'no, tell me the weather':tgflow.action(show_weather)}# you can also use tgflow.a as a shortcut
 		]
 	},
 	States.NEWS:{
@@ -133,7 +136,34 @@ def show_weather(input,location=None): # you can get user's data by key like thi
 	upd_data = {'weather': logic.get_weather(location)} # assign user's data to pass forward and store
 	return States.WEATHER,upd_data
 ```
+## Using different APIs
+Changing backend for your bot is as easy as
+```
+import tgflow as tgf
+from tgflow.api.vk import vkAPI
 
+tgf.configure(token="",state='start',apiModel=vkAPI)
+```
+Currently available models:
+- telegramAPI (default)
+- vkAPI
+- cliAPI
+
+### cliAPI
+this stuff is super useful: you can emulate the bot right in your terminal!
+<p>
+<img  src="https://github.com/DaniloZZZ/tgflow/blob/master/assets/out-2.gif" width="600"/>
+</p>
+Just try it, or check out the examples. 
+To "press" a button hit _N  where N - number of button
+
+And you can test the bot in one command using pipes!
+Guess what this command does?
+```
+echo -e "hello\n_1\n_2\n" | python3 cli_debug.py 
+```
+It sends "hello", then presses first, then second button.
+(check out /examples/cli_debug.py file)
 ## Architecture
 
 The event handling process is following:
@@ -156,7 +186,7 @@ tgfow.post
 ```
 
 
-they're bost defined in <a href="https://github.com/DaniloZZZ/tgflow/blob/master/tgflow/handles.py"> handles.py</a>
+they're both defined in <a href="https://github.com/DaniloZZZ/tgflow/blob/master/tgflow/handles.py"> handles.py</a>
 and, to be fair, are quite similar 
 
 helpers:
@@ -169,7 +199,7 @@ tgflow.choose		# use dict to paste string by key from data
 ### Actions
 
 ```
-a = tgfow.action(clb_function)
+a = tgflow.action(clb_function)
 # function should no more than 3 positional arguments state and data and return new_state or (new_state,new_data)
 # you can use keys from dict keys as argument names - tgflow will pass them for you
 ```
@@ -185,7 +215,7 @@ All interactions with outer world is recommended to perform in prepare. To set p
 ### Rendering
 
 ```
-p = tgfow.post(function)
+p = tgflow.post(function)
 # function should take 2 arguments state and data and return string or object that will be pasted instead of post object
 ```
 Any data formatting, string interpolation is done here
