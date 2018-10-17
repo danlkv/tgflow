@@ -1,5 +1,5 @@
 #import telebot
-import hashlib
+import hashlib, traceback
 from enum import Enum
 from . import handles
 from . import render
@@ -80,6 +80,7 @@ def start(ui):
         api.start(none_stop=True)
     except Exception as e:
         print("tgflow:polling error",e)
+        traceback.print_exc()
 
 def get_file_link(file_id):
     # TODO: implement this in api
@@ -128,11 +129,14 @@ def callback_handler(call):
         send(messages,call.message.chat.id)
 
 def gen_state_msg(i,ns,nd,_id,state_upd=True):
+    if not ns:
+        print('tgflow: None as new state, sending nothing')
+        return []
     pre_a = UI.get(ns).get('prepare')
     if pre_a:
        # call user-defined data perparations. 
        print("tgflow: found a prep function, calling...")
-       nd = pre_a(i,ns,**nd)
+       nd.update(pre_a(i,ns,**nd))
 
     args = {'s':ns,'d':nd}
     ui = render.prep(UI.get(ns),args)
@@ -176,9 +180,18 @@ def send_state(ns,tg_id):
     msg = gen_state_msg(None,ns,d,tg_id)
     send(msg,tg_id)
 
+def send_raw(text,uid):
+    # this isn't recommended
+    send([(msg,None)],uid)
+
 def flow(a,s,d,i,_id):
     if a:
         ns,nd = a.call(i,s,**d)
+        d.update(nd)
+        nd = d
+        print("__\n__\n New data")
+        pp.pprint(nd)
+
         print('tgflow: called action:'+str(a))
         if isinstance(s,Enum) and isinstance(ns,Enum):
             print ('tgflow: states change %s --> %s'%(s.name,ns.name))
@@ -186,6 +199,7 @@ def flow(a,s,d,i,_id):
             print ('tgflow: states change %s --> %s'%(s,ns))
     else:
         print('tgflow: no action found for message. %s unchanged'%s)
+        # TODO: make user choose what to send if no action found
         ns,nd = s,d
 
     return gen_state_msg(i,ns,nd,_id)
