@@ -44,7 +44,10 @@ class CLIBot:
                 butnames.append(BUTTON_KEY+"%i:%s"%(i,b[0]))
                 self._update_kb(b)
                 i+=1
-        kb=tabeled(butnames)
+        if butnames:
+            kb=tabeled(butnames)
+        else:
+            kb=""
 
         print("\ncli|bot:>>new message>>")
         msg = bordered(text+"\n"+kb)
