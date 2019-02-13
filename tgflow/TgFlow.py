@@ -247,7 +247,7 @@ def save_kactions(k,ui,s,_id):
         ui = [save_kactions(k,x,s,_id) for x in ui ]
 
 def send(message,id):
-    _print("tgflow: sending message")
+    _print("tgflow: sending message to",id)
     for text,markup in message:
         api.send(id,text=text,markup=markup)
 
