@@ -11,6 +11,11 @@ pp = pprint.PrettyPrinter(indent=4)
 
 action = handles.action
 
+VERBOSE=False
+def _print(*args):
+    if VERBOSE:
+        print("tgflow:",*args)
+
 api,key = None,None
 def_state = None
 def_data= None
@@ -51,11 +56,15 @@ except FileNotFoundError:
 
 def configure(token=None, state=None,
               apiModel=telegramAPI, data={},
-              group_id=None
+              group_id=None,
+              verbose=False,
 
              ):
     global def_state,def_data
     global api,key
+    if verbose:
+        global VERBOSE
+        VERBOSE=True
     if not token:
         raise Exception("tgflow needs your bot token")
     if not state:
@@ -75,7 +84,7 @@ def configure(token=None, state=None,
 def start(ui):
     global api,UI
     UI = ui
-    print("tgflow: listening")
+    _print("tgflow: listening")
     try:
         api.start(none_stop=True)
     except Exception as e:
@@ -93,7 +102,7 @@ def message_handler(messages):
     global States,UI
     for msg in messages:
         s = States.get(msg.chat.id,def_state)
-        print('tgflow: got message. State:'+str(s))
+        _print('tgflow: got message. State:'+str(s))
         # for security reasons need to hash. user can call every action in this state
         # key format: kb_+ButtonName
         a = Actions.get('kb_'+str(msg.text))
@@ -117,7 +126,7 @@ def callback_handler(call):
     s = States.get(call.message.chat.id,def_state)
     a = Actions.get(call.data)
     d = Data.get(call.message.chat.id,def_data)
-    print("tgflow: got callback. State:",s)
+    _print("tgflow: got callback. State:",s)
     messages = flow(a,s,d,call,call.message.chat.id)
     if a:
         if not a.update:
@@ -125,21 +134,23 @@ def callback_handler(call):
         else:
             update(messages, call.message)
     else:
-        print("tgflow: Warning: no action found but should")
+        _print("tgflow: Warning: no action found but should")
         send(messages,call.message.chat.id)
 
 def gen_state_msg(i,ns,nd,_id,state_upd=True):
     if not ns:
-        print('tgflow: None as new state, sending nothing')
+        _print('tgflow: None as new state, sending nothing')
         return []
-    pre_a = UI.get(ns).get('prepare')
+    new_state_ui = UI.get(ns)
+    pre_a = new_state_ui.get('prepare')
+
     if pre_a:
        # call user-defined data perparations. 
-       print("tgflow: found a prep function, calling...")
+       _print("tgflow: found a prep function, calling...")
        nd.update(pre_a(i,ns,**nd))
 
     args = {'s':ns,'d':nd}
-    ui = render.prep(UI.get(ns),args)
+    ui = render.prep(new_state_ui,args)
 
     # saving data and state
     Data[_id] = nd
@@ -148,7 +159,7 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     # registering callback triggers on buttons
     save_iactions(ui.get('b'))
     save_kactions(ns,ui.get('kb'),ns,_id)
-    print("tgflow: actions registered:\n",Actions)
+    _print("tgflow: actions registered:\n",Actions)
 
     # registering reaction triggers
     rc = ui.get('react') or ui.get('react_to')
@@ -158,18 +169,18 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
             Reaction_triggers[_id].append((rc.react_to,rc))
         else:
             Reaction_triggers.update({_id:[(rc.react_to,rc)]})
-        print("tgflow: reaction tgigger for %s registrated %s"%(str(_id),str(rc)))
+        _print("tgflow: reaction tgigger for %s registrated %s"%(str(_id),str(rc)))
     # clearing reaction triggers if needed
     rc = ui.get('clear_trig')
     if rc:
-        print("tgflow: reaction trigger clear",rc)
+        _print("tgflow: reaction trigger clear",rc)
         if Reaction_triggers.get(_id):
             for r,a_ in Reaction_triggers[_id]:
                 #TODO: handle arrays of triggers
                 if rc == r:
                     Reaction_triggers[_id].remove((r,a_))
         else:
-            print("tgflow:WARN removing unset trigger",rc)
+            _print("tgflow:WARN removing unset trigger",rc)
 
     # rendering message and buttons
     messages = render.render(ui)
@@ -181,24 +192,22 @@ def send_state(ns,tg_id):
     send(msg,tg_id)
 
 def send_raw(text,uid):
-    # this isn't recommended
-    send([(msg,None)],uid)
+    # this isn't recommended for users, as will not affect state
+    send([(text,None)],uid)
 
 def flow(a,s,d,i,_id):
     if a:
         ns,nd = a.call(i,s,**d)
         d.update(nd)
         nd = d
-        print("__\n__\n New data")
-        pp.pprint(nd)
 
-        print('tgflow: called action:'+str(a))
+        _print('tgflow: called action:'+str(a))
         if isinstance(s,Enum) and isinstance(ns,Enum):
-            print ('tgflow: states change %s --> %s'%(s.name,ns.name))
+            _print ('tgflow: states change %s --> %s'%(s.name,ns.name))
         else:
-            print ('tgflow: states change %s --> %s'%(s,ns))
+            _print ('tgflow: states change %s --> %s'%(s,ns))
     else:
-        print('tgflow: no action found for message. %s unchanged'%s)
+        _print('tgflow: no action found for message. %s unchanged'%s)
         # TODO: make user choose what to send if no action found
         ns,nd = s,d
 
@@ -227,7 +236,7 @@ def save_kactions(k,ui,s,_id):
                 Reaction_triggers[_id].append((ui.react_to,ui))
             else:
                 Reaction_triggers.update({_id:[(ui.react_to,ui)]})
-            print("tgflow: reaction tgigger for %s registrated %s"%(str(_id),str(ui)))
+            _print("tgflow: reaction tgigger for %s registrated %s"%(str(_id),str(ui)))
 
         else:
             Actions['kb_'+str(k)]=ui
@@ -238,11 +247,11 @@ def save_kactions(k,ui,s,_id):
         ui = [save_kactions(k,x,s,_id) for x in ui ]
 
 def send(message,id):
-    print("tgflow: sending message")
+    _print("tgflow: sending message")
     for text,markup in message:
         api.send(id,text=text,markup=markup)
 
 def update(messages,msg):
     for text,markup in messages:
-        print("tgflow: updating message")
+        _print("tgflow: updating message")
         api.update(msg,text=text,markup=markup)
