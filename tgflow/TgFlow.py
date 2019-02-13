@@ -118,9 +118,10 @@ def message_handler(messages):
 
 # following restriction is dictaded by telegram api
         messages = flow(a,s,d,msg,msg.chat.id)
-        send(messages,msg.chat.id)
-
-
+        if messages:
+            send(messages,msg.chat.id)
+        else:
+            _print("Staying silent...")
 
 def callback_handler(call):
     s = States.get(call.message.chat.id,def_state)
@@ -208,8 +209,12 @@ def flow(a,s,d,i,_id):
             _print ('tgflow: states change %s --> %s'%(s,ns))
     else:
         _print('tgflow: no action found for message. %s unchanged'%s)
-        # TODO: make user choose what to send if no action found
         ns,nd = s,d
+
+    # user can choose what to send if no action found
+    # Just should return -1 instead of state
+    if ns==-1:
+        return None
 
     return gen_state_msg(i,ns,nd,_id)
 
