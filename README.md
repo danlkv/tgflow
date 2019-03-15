@@ -83,7 +83,7 @@ class States(Enum):
 	SET_FAV=3
 	ERROR=9
 ```
-Basically, you define state names in separate file and include it everywhere. You can use just strings instead on `Enum` class, but you can`s use some functionality then.
+Basically, you define state names in separate file and include it everywhere. You can use just strings instead on `Enum` class, but you can't use some functionality then.
 
 Then, for each state you create a dictionary that defines UI and some simple actions. To handle user input you define your functions and assign them to buttons in UI dict.  You store user-specific data in a dictionary which is passed to you by 'd' argument. Here is a brief example of usage:
 ```python
@@ -146,7 +146,8 @@ tgf.configure(token="",state='start',apiModel=vkAPI)
 ```
 Currently available models:
 - telegramAPI (default)
-- vkAPI
+- vkAPI (for group bots)
+- vk_userAPI (for individual users)
 - cliAPI
 
 ### cliAPI
