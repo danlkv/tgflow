@@ -197,26 +197,33 @@ def send_raw(text,uid):
     send([(text,None)],uid)
 
 def flow(a,s,d,i,_id):
-    if a:
-        ns,nd = a.call(i,s,**d)
-        d.update(nd)
-        nd = d
+    messages = []
+    while True:
+        if a:
+            ns,nd = a.call(i,s,**d)
+            d.update(nd)
+            nd = d
 
-        _print('tgflow: called action:'+str(a))
-        if isinstance(s,Enum) and isinstance(ns,Enum):
-            _print ('tgflow: states change %s --> %s'%(s.name,ns.name))
+            _print('tgflow: called action:'+str(a))
+            if isinstance(s,Enum) and isinstance(ns,Enum):
+                _print ('tgflow: states change %s --> %s'%(s.name,ns.name))
+            else:
+                _print ('tgflow: states change %s --> %s'%(s,ns))
         else:
-            _print ('tgflow: states change %s --> %s'%(s,ns))
-    else:
-        _print('tgflow: no action found for message. %s unchanged'%s)
-        ns,nd = s,d
+            _print('tgflow: no action found for message. %s unchanged'%s)
+            ns,nd = s,d
 
-    # user can choose what to send if no action found
-    # Just should return -1 instead of state
-    if ns==-1:
-        return None
+        # user can choose what to send if no action found
+        # Just should return -1 instead of state
+        if ns==-1:
+            return message.append(None)
 
-    return gen_state_msg(i,ns,nd,_id)
+        # This allows to perform an action without waiting for user input
+        messages.append(gen_state_msg(i,ns,nd,_id)[0])
+        a = UI.get(ns).get('immediate_after')
+        if not a:
+            break
+    return messages
 
 def get_state(id,s):
     pass
