@@ -68,9 +68,12 @@ class WhatsAppBot:
                     label = int(text)
                     if label < 30:
                         call_id=label
-                        call = self.keyboard[int(call_id)-START_KB_IDX]
-                        call = Callback(msg,call)
-                        self.callback_handler(call)
+                        try:
+                            call = self.keyboard[int(call_id)-START_KB_IDX]
+                            call = Callback(msg,call)
+                            self.callback_handler(call)
+                        except IndexError:
+                            self.message_handler([msg])
                 except ValueError as e:
                     self.message_handler([msg])
             self.timestamp = time.time()
