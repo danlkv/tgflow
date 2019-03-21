@@ -58,6 +58,7 @@ def configure(token=None, state=None,
               apiModel=telegramAPI, data={},
               group_id=None,
               verbose=False,
+              **kwargs
 
              ):
     global def_state,def_data
@@ -75,7 +76,7 @@ def configure(token=None, state=None,
 
     # create bot and assign handlers
     # Group Id is not used in telegram
-    api = apiModel(key,group_id=group_id)
+    api = apiModel(key,group_id=group_id, **kwargs)
 
     api.set_message_handler(message_handler)
     api.set_callback_handler(callback_handler)
