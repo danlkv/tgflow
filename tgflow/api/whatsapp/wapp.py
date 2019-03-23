@@ -10,9 +10,9 @@ class WhatsAppAPI(tgfAPI):
         while True:
             self.bot.start_polling(**args)
 
-    def send(self,id,**args):
+    def send(self,id_,**args):
         self.bot.send_message(
-            chat_id=id,
+            chat_id=id_,
             text=args['text'],
             reply_markup =args['markup']
         )
@@ -22,6 +22,7 @@ class WhatsAppAPI(tgfAPI):
         text =args.get('text')
         markup=args.get('markup')
         self.bot.send_message(
+            msg.chat.id,
             text=text,
             reply_markup =markup
         )
