@@ -74,6 +74,8 @@ class WhatsAppBot:
                             self.callback_handler(call)
                         except IndexError:
                             self.message_handler([msg])
+                    else:
+                        self.message_handler([msg])
                 except ValueError as e:
                     self.message_handler([msg])
             self.timestamp = time.time()
@@ -83,6 +85,7 @@ class WhatsAppBot:
         butnames = []
         if mk:
             kb,i = "",START_KB_IDX
+            self.keyboard=[]
             for b in mk:
                 butnames.append("%i: %s"%(i,b[0]))
                 self._update_kb(b)
