@@ -29,7 +29,8 @@ class VkKeyboard():
                 but.get_dict() for but in self.buttons
             ]],
         }
-        return json.dumps(d)
+        print("KB:",d)
+        return json.dumps(d,ensure_ascii=False)
 
 class VkKeyboardButton():
     def __init__(self,text=None,
@@ -37,9 +38,9 @@ class VkKeyboardButton():
                  color=None):
 
         self.text = text
+        print("But text:",self.text)
         self.color = color
         self.callback_data =  callback_data
-
 
     def get_dict(self):
         d = {
@@ -50,6 +51,7 @@ class VkKeyboardButton():
             },
             'color':self.color or 'default'
         }
+        print("but dict:",d)
         return d
     def get_json(self):
         d = self.get_dict()
