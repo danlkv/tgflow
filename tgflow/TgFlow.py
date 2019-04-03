@@ -188,8 +188,9 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     messages = render.render(ui)
     return messages
 
-def send_state(ns,tg_id):
+def send_state(ns, tg_id, data={}):
     d = Data.get(tg_id,def_data)
+    d.update(data)
     msg = gen_state_msg(None,ns,d,tg_id)
     send(msg,tg_id)
 
