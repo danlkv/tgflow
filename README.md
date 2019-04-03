@@ -6,7 +6,8 @@
 
 <p align="center">A declarative-style Bot framework
 
-tgflow supports <a href="https://core.telegram.org/bots/api">Telegram Bot API</a> 
+tgflow supports <a href="https://core.telegram.org/bots/api">Telegram Bot API</a>,
+<a href="https://chat-api.com/en/?lang=EN"> WhatsApp via Chat-API</a>
 and <a href="https://vk.com/dev/bots_longpoll">Vk Bot API</a>. Looking forward to add Slack!
 
 In one line: use this framework to _declare_ bot logic and launch it on _multiple platforms_ seamlessly.
