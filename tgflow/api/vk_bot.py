@@ -11,8 +11,10 @@ class VKBot:
         self.token = token
         self.group = group
         self.get_longpoll_ep = lp_ep
+        self.init_poller()
 
-        self.get_longpoll_server(group)
+    def init_poller(self):
+        self.get_longpoll_server(self.group)
         #self.check_longpoll()
         self.poller = Longpoll(
             lambda x: len(x.get('updates',[]))>0,
@@ -29,33 +31,46 @@ class VKBot:
             'ts':self.ts,
             'wait':25
         }
-        for event in self.poller.event_emmitter(addr,params):
-            messages = []
-            call = None
-            for upd in event.get('updates',[]):
-                print(upd)
-                if upd.get('type')=='message_new':
-                    msg_object = upd.get('object')
-                    text = msg_object.get('text')
-                    data = msg_object.get('payload')
-                    chat_id = msg_object.get('peer_id')
+        try:
+            for event in self.poller.event_emmitter(addr,params):
+                messages = []
+                call = None
+                for upd in event.get('updates',[]):
+                    print(upd)
+                    if upd.get('type')=='message_new':
+                        msg_object = upd.get('object')
+                        text = msg_object.get('text')
+                        data = msg_object.get('payload')
+                        chat_id = msg_object.get('peer_id')
 
-                    msg = Message(text)
-                    msg.load_object( msg_object)
-                    msg.chat = Chat(chat_id)
-                    if data:
-                        call = VkCallback(
-                            # FUCK U VK
-                            data = json.loads(data),
-                            message = msg
-                        )
-                    messages.append(msg)
+                        msg = Message(text)
+                        msg.load_object( msg_object)
+                        msg.chat = Chat(chat_id)
+                        if data:
+                            call = VkCallback(
+                                # FUCK U VK
+                                data = json.loads(data),
+                                message = msg
+                            )
+                        messages.append(msg)
+                    else:
+                        pass
+                if call:
+                    self.callback_handler(call)
                 else:
-                    pass
-            if call:
-                self.callback_handler(call)
-            else:
-                self.message_handler(messages)
+                    self.message_handler(messages)
+        except Exception as e:
+            try:
+                if e.args[2].get('failed')==2:
+                    print("tgflow: VK token is outdated")
+                    self.init_poller()
+                    #
+                    # WARNING: recursion depth exceeds if long time
+                    self.start_polling(**args)
+                else:
+                    raise e
+            except KeyError as ee:
+                raise e
 
     def send_message(self,chat_id,text,**args):
         params = {
