@@ -30,7 +30,7 @@ class Longpoll():
                     print('upd',params)
                     self.param_next(params,True)
                 else:
-                    print('no updates, listening more...')
+                    print('No updates from %s, listening more...'%addr)
                     self.param_next(params,False)
             else:
                 raise Exception('longpoller error',
