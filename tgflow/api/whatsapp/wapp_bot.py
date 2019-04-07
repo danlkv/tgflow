@@ -22,8 +22,9 @@ class Callback():
 START_KB_IDX = 1
 
 class WhatsAppBot:
-    def __init__(self, token, endpoint):
+    def __init__(self, token, endpoint, delay=2.5):
         self.token = token
+        self.delat = delay
         self.ep = endpoint
         self.timestamp = time.time()
         self.keyboard = []
@@ -31,7 +32,7 @@ class WhatsAppBot:
             x.update({
                 'lastMessageNumber':x.get('lastMessageNumber',0)
             })
-            time.sleep(0.9)
+            time.sleep(delay)
 
         self.poller = Longpoll(
             self.check_updates,
