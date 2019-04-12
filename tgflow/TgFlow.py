@@ -22,6 +22,7 @@ def_data= None
 States = {}
 UI = {}
 Data = {}
+Triggers = {}
 Actions = {}
 Keyboards = {}
 Reaction_triggers = {}
@@ -81,7 +82,6 @@ def configure(token=None, state=None,
     api.set_message_handler(message_handler)
     api.set_callback_handler(callback_handler)
 
-
 def start(ui):
     global api,UI
     UI = ui
@@ -99,40 +99,49 @@ def get_file_link(file_id):
         key,finfo.file_path)
     return l
 
+def get_actions(event, s, d,  uid):
+    actions = []
+    user_trigs = Triggers.get(uid,[])
+    for predicate, label, action in user_trigs:
+        comp = predicate(event, s, d)
+        if comp == label:
+            actions.append(action)
+    return actions
+
 def message_handler(messages):
     global States,UI
     for msg in messages:
-        s = States.get(msg.chat.id,def_state)
+        id_ = msg.chat.id
+        s = States.get(id_, def_state)
+        d = Data.get(id_, def_data)
         _print('tgflow: got message. State:'+str(s))
+        user_trigs = Triggers.get(id_,[])
+        _print('tgflow: triggers: %s',user_trigs)
         # for security reasons need to hash. user can call every action in this state
         # key format: kb_+ButtonName
-        a = Actions.get('kb_'+str(msg.text))
-        if not a:
-            if Reaction_triggers.get(msg.chat.id):
-                for r,a_ in Reaction_triggers[msg.chat.id]:
-                    if msg.__dict__.get(r):
-                        a = a_
-                    if r=='all':
-                        a = a_
+        acts = get_actions({'msg':msg}, s, d, id_)
 
-        d = Data.get(msg.chat.id,def_data)
-
-# following restriction is dictaded by telegram api
-        messages = flow(a,s,d,msg,msg.chat.id)
+        #messages = flow(a,s,d,msg,msg.chat.id)
+        messages = flow(acts,s,d,msg,msg.chat.id)
         if messages:
             send(messages,msg.chat.id)
         else:
             _print("Staying silent...")
 
 def callback_handler(call):
-    s = States.get(call.message.chat.id,def_state)
-    a = Actions.get(call.data)
-    d = Data.get(call.message.chat.id,def_data)
+    id_ = call.message.chat.id
+    s = States.get(id_,def_state)
+    d = Data.get(id_,def_data)
     _print("tgflow: got callback. State:",s)
-    messages = flow(a,s,d,call,call.message.chat.id)
-    if a:
+    user_trigs = Triggers.get(id_,[])
+    _print('tgflow: triggers: %s',user_trigs)
+
+    acts = get_actions({'call':call}, s, d, id_)
+    messages = flow(acts,s,d,call,call.message.chat.id)
+    if len(acts)>0:
+        a = acts[-1]
         if not a.update:
-            send(messages,call.message.chat.id)
+            send(messages, call.message.chat.id)
         else:
             update(messages, call.message)
     else:
@@ -159,30 +168,7 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     if state_upd: States[_id] = ns
     save_sd(States,Data)
     # registering callback triggers on buttons
-    save_iactions(ui.get('b'))
-    save_kactions(ns,ui.get('kb'),ns,_id)
-    _print("tgflow: actions registered:\n",Actions)
-
-    # registering reaction triggers
-    rc = ui.get('react') or ui.get('react_to')
-    if rc:
-        trigs = Reaction_triggers.get(_id)
-        if trigs:
-            Reaction_triggers[_id].append((rc.react_to,rc))
-        else:
-            Reaction_triggers.update({_id:[(rc.react_to,rc)]})
-        _print("tgflow: reaction tgigger for %s registrated %s"%(str(_id),str(rc)))
-    # clearing reaction triggers if needed
-    rc = ui.get('clear_trig')
-    if rc:
-        _print("tgflow: reaction trigger clear",rc)
-        if Reaction_triggers.get(_id):
-            for r,a_ in Reaction_triggers[_id]:
-                #TODO: handle arrays of triggers
-                if rc == r:
-                    Reaction_triggers[_id].remove((r,a_))
-        else:
-            _print("tgflow:WARN removing unset trigger",rc)
+    save_triggers(ui, _id)
 
     # rendering message and buttons
     messages = render.render(ui)
@@ -198,15 +184,16 @@ def send_raw(text,uid):
     # this isn't recommended for users, as will not affect state
     send([(text,None)],uid)
 
-def flow(a,s,d,i,_id):
+def flow(acts,s,d,i,_id):
     messages = []
     while True:
-        if a:
-            ns,nd = a.call(i,s,**d)
-            d.update(nd)
+        if len(acts):
+            for a in acts:
+                _print('tgflow: calling action:'+str(a))
+                ns, nd = a.call(i,s,**d)
+                d.update(nd)
             nd = d
-
-            _print('tgflow: called action:'+str(a))
+            _print('tgflow: new data:%s'%nd)
             if isinstance(s,Enum) and isinstance(ns,Enum):
                 _print ('tgflow: states change %s --> %s'%(s.name,ns.name))
             else:
@@ -218,17 +205,99 @@ def flow(a,s,d,i,_id):
         # user can choose what to send if no action found
         # Just should return -1 instead of state
         if ns==-1:
-            return message.append(None)
+            return messages.append(None)
 
         # This allows to perform an action without waiting for user input
         messages.append(gen_state_msg(i,ns,nd,_id)[0])
         a = UI.get(ns).get('immediate_after')
+        acts = [a]
         if not a:
             break
     return messages
 
 def get_state(id,s):
     pass
+
+## predicate templates
+def inline_predicate(event,*k):
+    if not event.get('call'): return
+    return event.get('call').data
+def buttons_predicate(event,*k):
+    if not event.get('msg'): return
+    return 'kb_'+event.get('msg').text
+def get_react_predicate(prop):
+    def react_predicate(event,*k):
+        if not event.get('msg'): return
+        if prop=='all': return True
+        m = event.get('msg')
+        k = list(m.__dict__.keys())
+        return prop in k
+    return react_predicate
+
+#### Triggers
+def inline_trigs(ui):
+    if isinstance(ui,action):
+        #TODO: assign actions to every user distinctly, as with butons
+        key = ui.get_register_key()
+        trigger = (inline_predicate, key, ui)
+        return [trigger]
+    if isinstance(ui,dict):
+        for k,v in ui.items():
+            return inline_trigs(v)
+    elif isinstance(ui,list):
+        trigs = []
+        for x in ui:
+            trigs += inline_trigs(x)
+        return trigs
+    return []
+
+def button_trigs(ui,key=None):
+    if isinstance(ui,action):
+        # key format: State+ButtonName
+        key = 'kb_'+key
+        trigger = (buttons_predicate, key, ui)
+        return [trigger]
+        Actions['kb_'+str(k)]=ui
+    if isinstance(ui,dict):
+        for k,v in ui.items():
+            return button_trigs(v,k)
+    elif isinstance(ui,list):
+        trigs = []
+        for x in ui:
+            trigs += button_trigs(x)
+        return trigs
+    return []
+####
+
+
+def save_triggers(ui, id_):
+    global Triggers
+    inline = ui.get('b')
+    buttons = ui.get('kb')
+    reacts = ui.get('react') or ui.get('react_to')
+    custom = ui.get('triggers')
+
+    trigs = []
+    trigs += inline_trigs( inline )
+    trigs += button_trigs( buttons )
+    if reacts:
+        trigs += [(
+            get_react_predicate(reacts.react_to), True, reacts
+        )]
+    if custom:
+        trigs += custom
+
+    rc = ui.get('clear_trig')
+    if rc:
+        _print("tgflow: triggers clear for label", rc)
+        Triggers[id_] = list(filter(lambda x: x[1]!=rc, Triggers[id_]))
+    if not Triggers.get(id_):
+        Triggers[id_] = []
+
+    for t in trigs:
+        if t:
+            _print("registering trigger:",t)
+            Triggers[id_].append(t)
 
 def save_iactions(ui):
     if isinstance(ui,action):
@@ -264,6 +333,7 @@ def send(message,id):
     _print("tgflow: sending message to",id)
     for text,markup in message:
         api.send(id,text=text,markup=markup)
+    _print("tgflow: sent\n")
 
 def update(messages,msg):
     for text,markup in messages:
