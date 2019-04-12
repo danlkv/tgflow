@@ -101,6 +101,7 @@ def get_file_link(file_id):
 
 def get_actions(event, s, d,  uid):
     actions = []
+    _print('event is',event)
     user_trigs = Triggers.get(uid,[])
     for predicate, label, action in user_trigs:
         comp = predicate(event, s, d)
@@ -245,14 +246,15 @@ def inline_trigs(ui):
         key = ui.get_register_key()
         trigger = (inline_predicate, key, ui)
         return [trigger]
+    trigs = []
     if isinstance(ui,dict):
         for k,v in ui.items():
-            return inline_trigs(v)
+            trigs += inline_trigs(v)
     elif isinstance(ui,list):
         trigs = []
         for x in ui:
             trigs += inline_trigs(x)
-        return trigs
+    return trigs
     return []
 
 def button_trigs(ui,key=None):
@@ -262,15 +264,14 @@ def button_trigs(ui,key=None):
         trigger = (buttons_predicate, key, ui)
         return [trigger]
         Actions['kb_'+str(k)]=ui
+    trigs = []
     if isinstance(ui,dict):
         for k,v in ui.items():
-            return button_trigs(v,k)
+            trigs += button_trigs(v,k)
     elif isinstance(ui,list):
-        trigs = []
         for x in ui:
             trigs += button_trigs(x)
-        return trigs
-    return []
+    return trigs
 ####
 
 
