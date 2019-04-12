@@ -147,6 +147,10 @@ def callback_handler(call):
     else:
         _print("tgflow: Warning: no action found but should")
         send(messages,call.message.chat.id)
+    try:
+        api.bot.answer_callback_query(call.id)
+    except AttributeError:
+        pass
 
 def gen_state_msg(i,ns,nd,_id,state_upd=True):
     if not ns:
