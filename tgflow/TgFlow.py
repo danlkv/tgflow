@@ -107,7 +107,7 @@ def get_actions(event, s, d,  uid):
     actions = []
     _print('event is',event)
     user_trigs = Triggers.get(uid,[])
-    user_trigs.append (Triggers['_tgflow_default_'])
+    user_trigs.append (Triggers.get('_tgflow_default_',[]))
     for predicate, label, action in user_trigs:
         comp = predicate(event, s, d)
         if comp == label:
