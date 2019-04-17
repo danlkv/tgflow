@@ -3,8 +3,8 @@ setup(
       name = 'tgflow',
       packages = ['tgflow',
                   'tgflow.api',
-                  'tgflow.api.whatsapp'
-                  'tgflow.actions'
+                  'tgflow.api.whatsapp',
+                  'tgflow.actions',
                  ],
       version = '0.4.1',
       description = 'A declarative-style telegram bot framework',
