@@ -43,7 +43,8 @@ def read_sd(sf,df):
 
 def set_default_triggers(trigs):
     global Triggers
-    Triggers['_tgflow_default_'] = trigs
+    if trigs:
+        Triggers['_tgflow_default_'] = trigs
 
 def save_sd(states,data):
     try:
@@ -89,6 +90,7 @@ def configure(token=None, state=None,
 def start(ui):
     global api,UI
     UI = ui
+    set_default_triggers(UI.get('_tgflow_default_triggers_'))
     _print("tgflow: listening")
     try:
         api.start(none_stop=True)
