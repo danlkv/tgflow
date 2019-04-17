@@ -1,8 +1,12 @@
 from setuptools import setup
 setup(
       name = 'tgflow',
-      packages = ['tgflow','tgflow.api'],
-      version = '0.4.0',
+      packages = ['tgflow',
+                  'tgflow.api',
+                  'tgflow.api.whatsapp'
+                  'tgflow.actions'
+                 ],
+      version = '0.4.1',
       description = 'A declarative-style telegram bot framework',
       author = 'Danil Lykov',
       author_email = 'lkvdan@gmail.com',
