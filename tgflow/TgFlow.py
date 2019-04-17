@@ -108,9 +108,9 @@ def get_file_link(file_id):
 def get_actions(event, s, d,  uid):
     actions = []
     _print('event is',event)
+    default = Triggers.get('_tgflow_default_',[])
     user_trigs = Triggers.get(uid,[])
-    default = Triggers.get('_tgflow_default_')
-    if default: user_trigs+=default
+    user_trigs = default + user_trigs
     for predicate, label, action in user_trigs:
         comp = predicate(event, s, d)
         if comp == label:
