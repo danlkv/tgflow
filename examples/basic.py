@@ -32,8 +32,10 @@ UI = {
     States.INFO:{
         't':h.st('Your fav is %s','fav'),
         'b': [
+            [
             {'back to start':tgf.action(States.START)},
             {'overwrite favourite':h.action(States.FAV)}
+            ]
         ]
     },
     States.THANKS:{

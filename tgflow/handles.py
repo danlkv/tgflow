@@ -22,7 +22,7 @@ class post():
         return self.f(s,**d)
 
 class action():
-    def __init__(self,func,name=None,update_msg=True,only_send=False,react_to=None):
+    def __init__(self,func,name=None,update_msg=False,only_send=False,react_to=None):
         if isinstance(func,Enum):
             ns = func
             func = lambda i,s,**d: (ns, d)
