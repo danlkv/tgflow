@@ -51,27 +51,19 @@ class action():
         return urllib.parse.quote_plus(s)[:64]
 
     def call(self,i,s,**d):
-        # TODO: check signature
-        inp = {'i':i,'s':s,'d':d}
-        # support for full names
-        print(1)
-        inp.update( {'input':i,'state':s,'data':d})
-        args,kwargs=get_args_kwargs(self.f)
-        if len(args)>3:
-            print('No more than 3 arguments without def')
-        else:
-            if inspect.getargspec(self.f)[2]=='d':
-                # basic i,s,**d usage
-                return self.f(i,s,**d)
-            # generate requested data dict
-            to_pass = {name:inp.get(name) for name in args}
-            for name in kwargs:
-                val = d.get(name)
-                if val:
-                    to_pass[name]=val
-        print("inp",to_pass)
+        args, kwargs=get_args_kwargs(self.f)
+
+        to_pass = {}
+        varkw = inspect.getfullargspec(self.f)
+        if varkw: to_pass.update(d)
+        for arg, value in zip(args,[i,s]):
+            to_pass[arg] = value
+
+        for name in kwargs:
+            val = d.get(name)
+            if val: to_pass[name]=val
+
         outp = self.f(**to_pass)
-        print("outp",outp)
         if outp:
             if isinstance(outp,tuple):
                 if len(outp)==2:
