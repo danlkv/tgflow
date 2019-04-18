@@ -54,7 +54,8 @@ class action():
         # TODO: check signature
         inp = {'i':i,'s':s,'d':d}
         # support for full names
-        inp.update( {'input':i,'sstate':s,'data':d})
+        print(1)
+        inp.update( {'input':i,'state':s,'data':d})
         args,kwargs=get_args_kwargs(self.f)
         if len(args)>3:
             print('No more than 3 arguments without def')
@@ -68,7 +69,9 @@ class action():
                 val = d.get(name)
                 if val:
                     to_pass[name]=val
+        print("inp",to_pass)
         outp = self.f(**to_pass)
+        print("outp",outp)
         if outp:
             if isinstance(outp,tuple):
                 if len(outp)==2:
@@ -84,6 +87,7 @@ class action():
                 ns = outp
         else:
             ns = s
+        print("returning",ns,d)
         return ns,d
 
 def safeget(dct,keylist,default=None):
