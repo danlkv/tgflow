@@ -18,14 +18,9 @@ class GSheetsApi:
     def insert_row(self, sheet, row, idx):
         sheet.insert_row(row, idx)
 
-    def get_row_values(self, sheet, idx):
-        return sheet.row_values(idx)
-
-    def get_all_values(self, sheet):
+    def get_all_data(self, sheet):
         return sheet.get_all_values()
 
-    def del_row(self, sheet, idx):
-        sheet.delete_row(idx)
 
     
 

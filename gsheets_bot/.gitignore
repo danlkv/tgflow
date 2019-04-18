@@ -3,3 +3,6 @@
 
 #log files
 *.txt
+
+#bot files
+*.p

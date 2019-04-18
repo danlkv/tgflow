@@ -1,10 +1,10 @@
 import tgflow
 from enum import Enum
-from gsheetsapi import GSheetsApi
+import database_api
 
 key = '650613812:AAErWCUWakQAl65dtvk-mTfmNvEYAEdltVA'
-auth_filepath = 'client_secret.json'
-db_api = GSheetsApi(auth_filepath)
+auth_filepath = 'database_api/client_secret.json'
+db_api = database_api.GSheetsApi(auth_filepath)
 
 class States(Enum):
     ERROR = 0
@@ -29,7 +29,7 @@ def insert_row(i, s, **d):
     return States.SUCCESS, {}
 
 def get_all_data(i, s, **d):
-    data = db_api.get_all_values(d['sheet'])
+    data = db_api.get_all_data(d['sheet'])
     return States.GET, {'data': data}
 
 
@@ -38,7 +38,7 @@ UI = {
     States.START:{
         'text' : ('Hello, I can help you work with Google Spreadsheets. '
                     'Just send me your spreadsheet name and let\'s get started!'),
-        'react' : tgflow.action(open_sheet, react_to='text')
+        'react' : tgflow.action(open_sheet, react_to='text'),
     },
     
     States.CHOOSE:{
@@ -74,5 +74,5 @@ UI = {
 tgflow.configure(token=key,
                  state=States.START,
                  data={"foo":'bar'},
-                 verbose=True)
+                 verbose=False)
 tgflow.start(UI)
