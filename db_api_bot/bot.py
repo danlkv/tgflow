@@ -20,22 +20,24 @@ def open_sheet(i, s, **d):
     print('open sheet')
     try:
         sheet = db_api.open_sheet(i.text)
-    except Exception as e:
-        return States.ERROR
+    except Exception as exc:
+        print(exc)
+        return States.ERROR, {}
+
     upd_data = {'sheet': sheet}
     return States.CHOOSE, upd_data
 
 def insert_row(i, s, **d):
-    print('insert row')
-    idx, row = i.text.split()
+    idx, data = i.text.split(maxsplit=1)
     idx = int(idx)
-    print ('index',idx)
-    row = [str(datetime.now()), row]
+    row = data.split()
+    row = [datetime.now()] + row
+    print ('insert row at index {}'.format(idx))
     try:
         db_api.insert_row(d['sheet'], row, idx)
-    except Exception as e:
-        print(e)
-        return States.ERROR
+    except Exception as exc:
+        print(exc)
+        return States.ERROR, {}
 
     return States.SUCCESS, {}
 
