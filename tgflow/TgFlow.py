@@ -181,7 +181,7 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     if state_upd: States[_id] = ns
     save_sd(States,Data)
     # registering callback triggers on buttons
-    save_triggers(ui, _id)
+    save_triggers(ns, ui, _id)
 
     # rendering message and buttons
     messages = render.render(ui)
@@ -238,13 +238,13 @@ def inline_predicate(event,*k):
 def buttons_predicate(event,*k):
     if not event.get('msg'): return
     return 'kb_'+event.get('msg').text
-def get_react_predicate(prop):
-    def react_predicate(event,*k):
+def get_react_predicate(state, prop):
+    def react_predicate(event,s,d):
         if not event.get('msg'): return
         if prop=='all': return True
         m = event.get('msg')
         k = list(m.__dict__.keys())
-        return prop in k
+        return prop in k and s==state
     return react_predicate
 
 #### Triggers
@@ -283,7 +283,7 @@ def button_trigs(ui,key=None):
 ####
 
 
-def save_triggers(ui, id_):
+def save_triggers(state, ui, id_):
     global Triggers
     inline = ui.get('b')
     buttons = ui.get('kb')
@@ -295,7 +295,7 @@ def save_triggers(ui, id_):
     trigs += button_trigs( buttons )
     if reacts:
         trigs += [(
-            get_react_predicate(reacts.react_to), True, reacts
+            get_react_predicate(state, reacts.react_to), True, reacts
         )]
     if custom:
         trigs += custom
