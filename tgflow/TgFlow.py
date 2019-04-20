@@ -108,13 +108,14 @@ def get_file_link(file_id):
 def get_actions(event, s, d,  uid):
     actions = []
     _print('event is',event)
-    default = Triggers.get('_tgflow_default_',[])
-    user_trigs = Triggers.get(uid,[])
-    user_trigs = default + user_trigs
-    for predicate, label, action in user_trigs:
-        comp = predicate(event, s, d)
-        if comp == label:
-            actions.append(action)
+    default = Triggers.get('_tgflow_default_',{})
+    user_trigs = Triggers.get(uid,{})
+    user_trigs.update(default)
+    for trig_id  in user_trigs:
+        for predicate, label, action, id_ in user_trigs[trig_id]:
+            comp = predicate(event, s, d)
+            if comp == label:
+                actions.append(action)
     return actions
 
 def message_handler(messages):
@@ -252,7 +253,7 @@ def inline_trigs(ui):
     if isinstance(ui,action):
         #TODO: assign actions to every user distinctly, as with butons
         key = ui.get_register_key()
-        trigger = (inline_predicate, key, ui)
+        trigger = (inline_predicate, key, ui, id(ui.f) )
         return [trigger]
     trigs = []
     if isinstance(ui,dict):
@@ -269,7 +270,7 @@ def button_trigs(ui,key=None):
     if isinstance(ui,action):
         # key format: State+ButtonName
         key = 'kb_'+key
-        trigger = (buttons_predicate, key, ui)
+        trigger = (buttons_predicate, key, ui, 1)
         return [trigger]
         Actions['kb_'+str(k)]=ui
     trigs = []
@@ -281,7 +282,6 @@ def button_trigs(ui,key=None):
             trigs += button_trigs(x)
     return trigs
 ####
-
 
 def save_triggers(state, ui, id_):
     global Triggers
@@ -295,22 +295,28 @@ def save_triggers(state, ui, id_):
     trigs += button_trigs( buttons )
     if reacts:
         trigs += [(
-            get_react_predicate(state, reacts.react_to), True, reacts
+            get_react_predicate(state, reacts.react_to), True, reacts, 2
         )]
     if custom:
         trigs += custom
 
-    rc = ui.get('clear_trig')
-    if rc:
-        _print("tgflow: triggers clear for label", rc)
-        Triggers[id_] = list(filter(lambda x: x[1]!=rc, Triggers[id_]))
     if not Triggers.get(id_):
-        Triggers[id_] = []
+        Triggers[id_] = {}
 
     for t in trigs:
         if t:
-            _print("registering trigger:",t)
-            Triggers[id_].append(t)
+            trig_id  = trigger_id(t)
+            _print("registering trigger with id %s:"%trig_id, t)
+            Triggers[id_].setdefault(trig_id,[])
+            _print("id", t[2], id(t[2]))
+            Triggers[id_][trig_id] = [t]
+
+    _print("done trigger registration. ids: %s"%list(Triggers[id_]))
+
+def trigger_id(trigger):
+    if len(trigger)>3:
+        return trigger[3]
+    else: return 0
 
 def save_iactions(ui):
     if isinstance(ui,action):

@@ -1,7 +1,7 @@
 import tgflow
 from enum import Enum
 import database_api
-from datetime import datetime 
+from datetime import datetime
 
 #key = '650613812:AAErWCUWakQAl65dtvk-mTfmNvEYAEdltVA'
 key='539066078:AAHCUsr8ZoP9JtP5KqOMuL7f_UoFyyH6wik'
@@ -15,7 +15,7 @@ class States(Enum):
     SUCCESS = 3
     PUT = 4
     GET = 5
-    
+
 def open_sheet(i, s, **d):
     print('open sheet')
     try:
@@ -30,8 +30,8 @@ def open_sheet(i, s, **d):
 def insert_row(i, s, **d):
     idx, data = i.text.split(maxsplit=1)
     idx = int(idx)
-    row = data.split()
-    row = [datetime.now()] + row
+    #row = data.split()
+    row = [str(datetime.now())] + [data]
     print ('insert row at index {}'.format(idx))
     try:
         db_api.insert_row(d['sheet'], row, idx)
