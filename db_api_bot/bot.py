@@ -8,6 +8,8 @@ key='539066078:AAHCUsr8ZoP9JtP5KqOMuL7f_UoFyyH6wik'
 auth_filepath = 'database_api/client_secret.json'
 db_api = database_api.GSheetsApi(auth_filepath)
 
+timestamp_format = '%d.%m.%y %H:%M:%S'
+
 class States(Enum):
     ERROR = 0
     START = 1
@@ -79,7 +81,7 @@ UI = {
     },
     
     States.ERROR:{
-        'text':'Sorry there was an err9r',
+        'text':'Sorry there was an error',
         'buttons': [{'Start':tgflow.action(States.START)}]
     }  
 }
