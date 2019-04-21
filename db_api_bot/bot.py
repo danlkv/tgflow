@@ -6,7 +6,10 @@ from datetime import datetime
 #key = '650613812:AAErWCUWakQAl65dtvk-mTfmNvEYAEdltVA'
 key='539066078:AAHCUsr8ZoP9JtP5KqOMuL7f_UoFyyH6wik'
 auth_filepath = 'database_api/client_secret.json'
+tid_filepath = 'database_api/tid.txt'
+
 db_api = database_api.GSheetsApi(auth_filepath)
+analytics = database_api.Analytics(tid_filepath)
 
 class States(Enum):
     ERROR = 0
@@ -17,7 +20,7 @@ class States(Enum):
     GET = 5
 
 def open_sheet(i, s, **d):
-    print('open sheet')
+    print('opening sheet \'{}\''.format(i.text))
     try:
         sheet = db_api.open_sheet(i.text)
     except Exception as exc:
@@ -51,6 +54,7 @@ UI = {
                   'Share your sheet with developer@treebo.iam.gserviceaccount.com.' 
                   'Then just send me your spreadsheet name and let\'s get started!'),
         'react' : tgflow.action(open_sheet, react_to='text'),
+        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
     },
     
     States.CHOOSE:{
@@ -59,27 +63,32 @@ UI = {
             {'Insert row' : tgflow.action(States.PUT)},
             {'Recieve all data' : tgflow.action(get_all_data)}
         ],
+        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
     },
     
     States.PUT:{
         'text' : "Please type data as \'<row number> <your data>\'.",
         'buttons' : [{'Back' : tgflow.action(States.CHOOSE)}],
-        'react' : tgflow.action(insert_row, react_to = 'text')       
+        'react' : tgflow.action(insert_row, react_to = 'text'),       
+        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
     },
     
     States.SUCCESS:{
         'text' : 'Done successfully!', 
-        'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}]
+        'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}],
+        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
     },
     
     States.GET:{
         'text' : tgflow.handles.st('Here is your data:\n%s', 'data'),
-        'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}]
+        'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}],
+        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
     },
     
     States.ERROR:{
         'text':'Sorry there was an error',
-        'buttons': [{'Start':tgflow.action(States.START)}]
+        'buttons': [{'Start':tgflow.action(States.START)}],
+        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
     }  
 }
 
