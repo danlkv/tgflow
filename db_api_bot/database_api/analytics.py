@@ -6,7 +6,7 @@ class Analytics:
             self._tid = tid_file.read()[:-1]
         self._v = 1
 
-    def post(self, type_, client_id, state):
+    def _post(self, type_, client_id, state):
         payload = {
             'v': self._v,
             'tid': self._tid,
@@ -14,5 +14,11 @@ class Analytics:
             't': type_,
             'dp': state,
         }
-        requests.post("http://www.google-analytics.com/collect", data=payload)
+        r = requests.post("http://www.google-analytics.com/collect", data=payload)
+        return r.ok
+
+    def send_pageview(self, i, s, **d):
+        ok = self._post('pageview', i.from_user.id, s.name)
+        if not ok:
+            print("google analytics: error")
         return {}

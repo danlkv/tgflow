@@ -54,7 +54,7 @@ UI = {
                   'Share your sheet with developer@treebo.iam.gserviceaccount.com.' 
                   'Then just send me your spreadsheet name and let\'s get started!'),
         'react' : tgflow.action(open_sheet, react_to='text'),
-        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
+        'prepare' : analytics.send_pageview,
     },
     
     States.CHOOSE:{
@@ -63,32 +63,32 @@ UI = {
             {'Insert row' : tgflow.action(States.PUT)},
             {'Recieve all data' : tgflow.action(get_all_data)}
         ],
-        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
+        'prepare' : analytics.send_pageview,
     },
     
     States.PUT:{
         'text' : "Please type data as \'<row number> <your data>\'.",
         'buttons' : [{'Back' : tgflow.action(States.CHOOSE)}],
         'react' : tgflow.action(insert_row, react_to = 'text'),       
-        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
+        'prepare' : analytics.send_pageview,
     },
     
     States.SUCCESS:{
         'text' : 'Done successfully!', 
         'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}],
-        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
+        'prepare' : analytics.send_pageview,
     },
     
     States.GET:{
         'text' : tgflow.handles.st('Here is your data:\n%s', 'data'),
         'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}],
-        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
+        'prepare' : analytics.send_pageview,
     },
     
     States.ERROR:{
         'text':'Sorry there was an error',
         'buttons': [{'Start':tgflow.action(States.START)}],
-        'prepare' : lambda i, s, **d: analytics.post('pageview', i.from_user.id, s.name),
+        'prepare' : analytics.send_pageview,
     }  
 }
 
