@@ -8,8 +8,6 @@ key='539066078:AAHCUsr8ZoP9JtP5KqOMuL7f_UoFyyH6wik'
 auth_filepath = 'database_api/client_secret.json'
 db_api = database_api.GSheetsApi(auth_filepath)
 
-timestamp_format = '%d.%m.%y %H:%M:%S'
-
 class States(Enum):
     ERROR = 0
     START = 1
@@ -32,7 +30,6 @@ def open_sheet(i, s, **d):
 def insert_row(i, s, **d):
     idx, data = i.text.split(maxsplit=1)
     idx = int(idx)
-    #row = data.split()
     row = [str(datetime.now())] + [data]
     print ('insert row at index {}'.format(idx))
     try:
