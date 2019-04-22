@@ -163,7 +163,7 @@ def callback_handler(call):
         pass
 
 def gen_state_msg(i,ns,nd,_id,state_upd=True):
-    if not ns:
+    if ns is None:
         _print('tgflow: None as new state, sending nothing')
         return []
     new_state_ui = UI.get(ns)
