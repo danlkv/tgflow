@@ -24,19 +24,27 @@ class Bitrix:
 
     def add_lead(self, i, s, **d):
         self._check_tokens()
-        lead_data = {
+        payload = {
             "fields":{
-                "TITLE": "FatJoint LLC",
+                "TITLE": 'Lead with id {}'.format(i.from_user.id),
                 "NAME": i.from_user.first_name,
                 "LAST_NAME": i.from_user.last_name,
                 "STATUS_ID": "NEW",
-                "OPENED": "Y",
-                "ASSIGNED_BY_ID": 1,
-                "CURRENCY_ID": "BTC",
-                "OPPORTUNITY": 12500,
-                "PHONE": [ { "VALUE": i.from_user.id, "VALUE_TYPE": "WORK" } ] 
+                "PHONE": [ { "VALUE": i.from_user.id} ] 
             }
         }
+        lead_id = self._client.call_method('crm.lead.add', payload)['result']
+        return {'lead_id': lead_id}
 
-        self._client.call_method('crm.lead.add', lead_data)
-        return {}
+    def add_contact(self, i, s, **d):
+        self._check_tokens()
+        lead = self._client.call_method('crm.lead.get', {'id': d['lead_id']})['result']
+        payload = {
+            'fields': {
+                "NAME": lead['NAME'],
+                "LAST_NAME": lead.get('LAST_NAME'),
+                "PHONE": lead["PHONE"]
+            }
+        }
+        contact_id = self._client.call_method('crm.contact.add', payload)['result']
+        return {'contact_id': contact_id}

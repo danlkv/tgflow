@@ -77,7 +77,7 @@ UI = {
             {'Insert row' : tgflow.action(States.PUT)},
             {'Recieve all data' : tgflow.action(get_all_data)}
         ],
-        'prepare' : analytics.send_pageview,
+        'prepare' : prepare_list(analytics.send_pageview, bitrix.add_contact)
     },
     
     States.PUT:{
