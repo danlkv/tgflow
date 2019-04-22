@@ -6,3 +6,6 @@
 
 #bot files
 *.p
+
+#jupyter-notebook files
+*.ipynb

@@ -5,11 +5,15 @@ from datetime import datetime
 
 #key = '650613812:AAErWCUWakQAl65dtvk-mTfmNvEYAEdltVA'
 key='539066078:AAHCUsr8ZoP9JtP5KqOMuL7f_UoFyyH6wik'
-auth_filepath = 'database_api/client_secret.json'
-tid_filepath = 'database_api/tid.txt'
 
-db_api = database_api.GSheetsApi(auth_filepath)
-analytics = database_api.Analytics(tid_filepath)
+gsheets_auth_filepath = 'database_api/client_secret.json'
+analytics_tid_filepath = 'database_api/tid.txt'
+bitrix_tokens_filepath = 'database_api/tokens.txt'
+bitrix_creds_filepath = 'database_api/client_creds.txt'
+
+db_api = database_api.GSheetsApi(gsheets_auth_filepath)
+analytics = database_api.Analytics(analytics_tid_filepath)
+bitrix = database_api.Bitrix(bitrix_tokens_filepath, bitrix_creds_filepath)
 
 class States(Enum):
     ERROR = 0
@@ -18,6 +22,15 @@ class States(Enum):
     SUCCESS = 3
     PUT = 4
     GET = 5
+
+def prepare_list(*functions):
+    def prepare(i, s, **d):
+        update_dict = {}
+        for func in functions:
+            result = func(i, s, **d)
+            update_dict.update(result)
+        return update_dict
+    return prepare
 
 def open_sheet(i, s, **d):
     print('opening sheet \'{}\''.format(i.text))
@@ -54,7 +67,8 @@ UI = {
                   'Share your sheet with developer@treebo.iam.gserviceaccount.com.' 
                   'Then just send me your spreadsheet name and let\'s get started!'),
         'react' : tgflow.action(open_sheet, react_to='text'),
-        'prepare' : analytics.send_pageview,
+        'prepare' : prepare_list(analytics.send_pageview,
+                                bitrix.add_lead),
     },
     
     States.CHOOSE:{
