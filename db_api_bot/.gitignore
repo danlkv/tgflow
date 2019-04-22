@@ -1,0 +1,8 @@
+#auth files
+*.json
+
+#log files
+*.txt
+
+#bot files
+*.p
