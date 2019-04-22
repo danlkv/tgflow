@@ -74,7 +74,7 @@ def configure(token=None, state=None,
         VERBOSE=True
     if not token:
         raise Exception("tgflow needs your bot token")
-    if not state:
+    if state is None:
         raise Exception("tgflow needs a default state for new users")
     key =token
     def_state=state
