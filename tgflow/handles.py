@@ -54,7 +54,7 @@ class action():
         args, kwargs=get_args_kwargs(self.f)
 
         to_pass = {}
-        varkw = inspect.getfullargspec(self.f)
+        varkw = inspect.getfullargspec(self.f).varkw
         if varkw: to_pass.update(d)
         for arg, value in zip(args,[i,s]):
             to_pass[arg] = value
