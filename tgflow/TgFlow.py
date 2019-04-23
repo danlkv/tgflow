@@ -111,6 +111,7 @@ def get_actions(event, s, d,  uid):
     trigs = Triggers.get('_tgflow_default_',{})
     user_trigs = Triggers.get(uid,{})
     trigs.update(user_trigs)
+    _print("user tirgs", user_trigs)
     for trig_id, trigs_group in trigs.items():
         _print("evaluating group",trig_id,trigs_group)
         for predicate, label, action, id_ in trigs_group:
