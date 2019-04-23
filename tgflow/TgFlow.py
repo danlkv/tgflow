@@ -170,9 +170,12 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     pre_a = new_state_ui.get('prepare')
 
     if pre_a:
-       # call user-defined data perparations. 
-       _print("tgflow: found a prep function, calling...")
-       nd.update(pre_a(i,ns,**nd))
+        # call user-defined data perparations. 
+        _print("tgflow: found prep functions, calling...")
+        if not isinstance(pre_a, list):
+            pre_a = [pre_a,]
+        for prep_func in pre_a:
+            nd.update(prep_func(i,ns,**nd))
 
     args = {'s':ns,'d':nd}
     ui = render.prep(new_state_ui,args)

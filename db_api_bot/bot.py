@@ -23,15 +23,6 @@ class States(Enum):
     PUT = 4
     GET = 5
 
-def prepare_list(*functions):
-    def prepare(i, s, **d):
-        update_dict = {}
-        for func in functions:
-            result = func(i, s, **d)
-            update_dict.update(result)
-        return update_dict
-    return prepare
-
 def open_sheet(i, s, **d):
     print('opening sheet \'{}\''.format(i.text))
     try:
@@ -67,8 +58,7 @@ UI = {
                   'Share your sheet with developer@treebo.iam.gserviceaccount.com.' 
                   'Then just send me your spreadsheet name and let\'s get started!'),
         'react' : tgflow.action(open_sheet, react_to='text'),
-        'prepare' : prepare_list(analytics.send_pageview,
-                                bitrix.add_lead),
+        'prepare' : [analytics.send_pageview, bitrix.add_lead],
     },
     
     States.CHOOSE:{
@@ -77,7 +67,7 @@ UI = {
             {'Insert row' : tgflow.action(States.PUT)},
             {'Recieve all data' : tgflow.action(get_all_data)}
         ],
-        'prepare' : prepare_list(analytics.send_pageview, bitrix.add_contact)
+        'prepare' : [analytics.send_pageview, bitrix.add_contact]
     },
     
     States.PUT:{
