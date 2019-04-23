@@ -2,7 +2,7 @@ import tgflow
 from enum import Enum
 from datetime import datetime
 import database_api
-from tgflow.modules import Analytics, Bitrix
+from tgflow.modules import Analytics, Bitrix24
 
 #key = '650613812:AAErWCUWakQAl65dtvk-mTfmNvEYAEdltVA'
 key='539066078:AAHCUsr8ZoP9JtP5KqOMuL7f_UoFyyH6wik'
@@ -14,7 +14,7 @@ bitrix_creds_filepath = 'database_api/client_creds.txt'
 
 db_api = database_api.GSheetsApi(gsheets_auth_filepath)
 analytics = tgflow.modules.Analytics(analytics_tid_filepath)
-bitrix = tgflow.modules.Bitrix(bitrix_tokens_filepath, bitrix_creds_filepath)
+bitrix = tgflow.modules.Bitrix24(bitrix_creds_filepath, bitrix_tokens_filepath)
 
 class States(Enum):
     ERROR = 0

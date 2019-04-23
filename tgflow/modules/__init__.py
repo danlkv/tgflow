@@ -1,2 +1,2 @@
 from .analytics import Analytics
-from .bitrix import Bitrix
+from .bitrix24 import Bitrix24

@@ -1,15 +1,16 @@
-from bitrix24 import Bitrix24
 import requests
+from bitrix24 import Bitrix24 as bt24
 from datetime import datetime
+from tgflow.TgFlow import _print as _print
 
-class Bitrix:
-    def __init__(self, tokens_filepath, creds_filepath):
-        with open(tokens_filepath, 'r') as f:
+class Bitrix24:
+    def __init__(self, creds_filepath, initial_tokens_filepath):
+        with open(initial_tokens_filepath, 'r') as f:
             tokens = f.readlines()
         with open(creds_filepath, 'r') as f:
             creds = f.readlines()
-        self._client = Bitrix24(creds[2][:-1], client_id=creds[0][:-1], client_secret=creds[1][:-1],
-                                access_token=tokens[0][:-1], refresh_token=tokens[1][:-1])
+        self._client = bt24(creds[0][:-1], client_id=creds[1][:-1], client_secret=creds[2][:-1],
+                                access_token=tokens[0][:-1], refresh_token=tokens[1][:-1]) #the last symbol is '\n'
         self._client.refresh_tokens()
         self._token_refresh_time = datetime.now()
 
@@ -17,6 +18,7 @@ class Bitrix:
         current_time = datetime.now()
         time_diff = current_time - self._token_refresh_time
         if time_diff.seconds > 60 * 50:
+            _print('bitrix24: refreshing tokens')
             self._client.refresh_tokens()
             self._token_refresh_time = current_time
 
@@ -31,6 +33,7 @@ class Bitrix:
                 "PHONE": [ { "VALUE": i.from_user.id} ] 
             }
         }
+        _print('bitrix24: adding a new lead')
         lead_id = self._client.call_method('crm.lead.add', payload)['result']
         return {'bitrix24.lead_id': lead_id}
 
@@ -44,6 +47,7 @@ class Bitrix:
                 "PHONE": lead["PHONE"]
             }
         }
+        _print('bitrix24: adding a new contact')
         contact_id = self._client.call_method('crm.contact.add', payload)['result']
         return {'bitrix24.contact_id': contact_id}
 
@@ -57,5 +61,6 @@ class Bitrix:
                 "CONTACT_ID": d['bitrix24.contact_id'],
             }
         }
+        _print('bitrix24: adding a new deal')
         deal_id = self._client.call_method('crm.deal.add', payload)['result']
         return {'bitrix24.deal_id': deal_id}
