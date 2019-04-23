@@ -34,11 +34,11 @@ class Bitrix:
             }
         }
         lead_id = self._client.call_method('crm.lead.add', payload)['result']
-        return {'lead_id': lead_id}
+        return {'bitrix24.lead_id': lead_id}
 
     def add_contact(self, i, s, **d):
         self._check_tokens()
-        lead = self._client.call_method('crm.lead.get', {'id': d['lead_id']})['result']
+        lead = self._client.call_method('crm.lead.get', {'id': d['bitrix24.lead_id']})['result']
         payload = {
             'fields': {
                 "NAME": lead['NAME'],
@@ -47,4 +47,17 @@ class Bitrix:
             }
         }
         contact_id = self._client.call_method('crm.contact.add', payload)['result']
-        return {'contact_id': contact_id}
+        return {'bitrix24.contact_id': contact_id}
+
+    def add_deal(self, i, s, **d):
+        self._check_tokens()
+        payload = {
+            'fields' : {
+                "TITLE": "Deal with user {}".format(i.from_user.id), 
+                "STAGE_ID": "NEW", 					
+                "COMPANY_ID": 3,
+                "CONTACT_ID": d['bitrix24.contact_id'],
+            }
+        }
+        deal_id = self._client.call_method('crm.deal.add', payload)['result']
+        return {'bitrix24.deal_id': deal_id}

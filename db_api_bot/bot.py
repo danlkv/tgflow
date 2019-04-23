@@ -58,7 +58,7 @@ UI = {
                   'Share your sheet with developer@treebo.iam.gserviceaccount.com.' 
                   'Then just send me your spreadsheet name and let\'s get started!'),
         'react' : tgflow.action(open_sheet, react_to='text'),
-        'prepare' : [analytics.send_pageview, bitrix.add_lead],
+        'prepare' : [analytics.send_pageview, bitrix.add_lead, bitrix.add_contact],
     },
     
     States.CHOOSE:{
@@ -67,7 +67,7 @@ UI = {
             {'Insert row' : tgflow.action(States.PUT)},
             {'Recieve all data' : tgflow.action(get_all_data)}
         ],
-        'prepare' : [analytics.send_pageview, bitrix.add_contact]
+        'prepare' : [analytics.send_pageview, bitrix.add_deal]
     },
     
     States.PUT:{
