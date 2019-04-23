@@ -5,6 +5,7 @@ setup(
                   'tgflow.api',
                   'tgflow.api.whatsapp',
                   'tgflow.actions',
+                  'tgflow.modules',
                  ],
       version = '0.4.1',
       description = 'A declarative-style telegram bot framework',
