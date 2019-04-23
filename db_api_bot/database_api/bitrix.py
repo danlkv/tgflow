@@ -2,15 +2,13 @@ from bitrix24 import Bitrix24
 import requests
 from datetime import datetime
 
-DOMAIN = 'b24-dw3931.bitrix24.ru'
-
 class Bitrix:
     def __init__(self, tokens_filepath, creds_filepath):
         with open(tokens_filepath, 'r') as f:
             tokens = f.readlines()
         with open(creds_filepath, 'r') as f:
             creds = f.readlines()
-        self._client = Bitrix24(DOMAIN, client_id=creds[0][:-1], client_secret=creds[1][:-1],
+        self._client = Bitrix24(creds[2][:-1], client_id=creds[0][:-1], client_secret=creds[1][:-1],
                                 access_token=tokens[0][:-1], refresh_token=tokens[1][:-1])
         self._client.refresh_tokens()
         self._token_refresh_time = datetime.now()
