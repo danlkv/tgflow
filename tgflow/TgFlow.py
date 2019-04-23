@@ -112,9 +112,11 @@ def get_actions(event, s, d,  uid):
     user_trigs = Triggers.get(uid,{})
     trigs.update(user_trigs)
     for trig_id, trigs_group in trigs.items():
+        _print("evaluating group",trig_id,trigs_group)
         for predicate, label, action, id_ in trigs_group:
             comp = predicate(event, s, d)
             if comp == label:
+                _print("append action",action)
                 actions.append(action)
     return actions
 
