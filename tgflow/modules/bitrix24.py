@@ -42,13 +42,20 @@ class Bitrix24:
         lead = self._client.call_method('crm.lead.get', {'id': d['bitrix24.lead_id']})['result']
         payload = {
             'fields': {
-                "NAME": lead['NAME'],
+                "NAME": lead.get('NAME'),
                 "LAST_NAME": lead.get('LAST_NAME'),
-                "PHONE": lead["PHONE"]
+                "PHONE": lead["PHONE"],
             }
         }
         _print('bitrix24: adding a new contact')
         contact_id = self._client.call_method('crm.contact.add', payload)['result']
+        update_dict = {
+            'id': d['bitrix24.lead_id'],
+            'fields': {
+                'CONTACT_ID': contact_id,
+            },
+        }
+        self._client.call_method('crm.lead.update', update_dict)
         return {'bitrix24.contact_id': contact_id}
 
     def add_deal(self, i, s, **d):
@@ -58,7 +65,7 @@ class Bitrix24:
                 "TITLE": "Deal with user {}".format(i.from_user.id), 
                 "STAGE_ID": "NEW", 					
                 "COMPANY_ID": 3,
-                "CONTACT_ID": d['bitrix24.contact_id'],
+                "CONTACT_ID": d.get('bitrix24.contact_id'),
             }
         }
         _print('bitrix24: adding a new deal')
