@@ -98,13 +98,6 @@ def start(ui):
         print("tgflow:polling error",e)
         traceback.print_exc()
 
-def get_file_link(file_id):
-    # TODO: implement this in api
-    finfo = bot.get_file(file_id)
-    l='https://api.telegram.org/file/bot%s/%s'%(
-        key,finfo.file_path)
-    return l
-
 def get_actions(event, s, d,  uid):
     actions = []
     _print('event is',event)
@@ -112,7 +105,7 @@ def get_actions(event, s, d,  uid):
     user_trigs = Triggers.get(uid,{})
     user_trigs.update(default)
     for trig_id  in user_trigs:
-        for predicate, label, action, id_ in user_trigs[trig_id]:
+        for predicate, label, action, _ in user_trigs[trig_id]:
             comp = predicate(event, s, d)
             if comp == label:
                 actions.append(action)
@@ -260,7 +253,7 @@ def inline_trigs(ui):
         return [trigger]
     trigs = []
     if isinstance(ui,dict):
-        for k,v in ui.items():
+        for _, v in ui.items():
             trigs += inline_trigs(v)
     elif isinstance(ui,list):
         trigs = []
@@ -275,7 +268,7 @@ def button_trigs(ui,key=None):
         key = 'kb_'+key
         trigger = (buttons_predicate, key, ui, 1)
         return [trigger]
-        Actions['kb_'+str(k)]=ui
+        Actions['kb_'+str(key)]=ui
     trigs = []
     if isinstance(ui,dict):
         for k,v in ui.items():
