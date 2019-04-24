@@ -4,11 +4,12 @@ from datetime import datetime
 from tgflow.TgFlow import _print as _print
 
 class Bitrix24:
-    def __init__(self, creds_filepath, initial_tokens_filepath):
+    def __init__(self, creds_filepath, initial_tokens_filepath, stages_dict):
         with open(initial_tokens_filepath, 'r') as f:
             tokens = f.readlines()
         with open(creds_filepath, 'r') as f:
             creds = f.readlines()
+        self._stages_dict = stages_dict
         self._client = bt24(creds[0][:-1], client_id=creds[1][:-1], client_secret=creds[2][:-1],
                                 access_token=tokens[0][:-1], refresh_token=tokens[1][:-1]) #the last symbol is '\n'
         self._client.refresh_tokens()
@@ -71,3 +72,15 @@ class Bitrix24:
         _print('bitrix24: adding a new deal')
         deal_id = self._client.call_method('crm.deal.add', payload)['result']
         return {'bitrix24.deal_id': deal_id}
+
+    def update_deal(self, i, s, **d):
+        self._check_tokens()
+        update_dict = {
+            'id': d['bitrix24.deal_id'],
+            'fields': {
+                'STAGE_ID': self._stages_dict[s.value],
+            },
+        }
+        _print('bitrix24: updating deal {} to state {}: {}'.format(d['bitrix24.deal_id'], s.name, self._stages_dict[s.value]))
+        self._client.call_method('crm.deal.update', update_dict)
+        return {}
