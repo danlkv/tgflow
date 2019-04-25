@@ -214,8 +214,9 @@ def flow(acts,s,d,i,_id):
 
         # user can choose what to send if no action found
         # Just should return -1 instead of state
-        if ns==-1:
-            return messages.append(None)
+        if ns.value == -1:
+            return messages
+
 
         # This allows to perform an action without waiting for user input
         messages.append(gen_state_msg(i,ns,nd,_id)[0])
