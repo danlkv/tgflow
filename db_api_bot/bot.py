@@ -21,12 +21,12 @@ class States(Enum):
     GET = 5
 
 bitrix_stages_dict = {
-    States.ERROR.value: 'LOSE',
-    States.START.value: 'NEW',
-    States.CHOOSE.value: 'PREPARATION',
-    States.SUCCESS.value: 'FINAL_INVOICE',
-    States.PUT.value: 'PREPAYMENT_INVOICE',
-    States.GET.value: 'EXECUTING',
+    States.ERROR: 'LOSE',
+    States.START: 'NEW',
+    States.CHOOSE: 'PREPARATION',
+    States.SUCCESS: 'FINAL_INVOICE',
+    States.PUT: 'PREPAYMENT_INVOICE',
+    States.GET: 'EXECUTING',
 }
 
 db_api = database_api.GSheetsApi(gsheets_auth_filepath)
@@ -77,32 +77,32 @@ UI = {
             {'Insert row' : tgflow.action(States.PUT)},
             {'Recieve all data' : tgflow.action(get_all_data)}
         ],
-        'prepare' : [analytics.send_pageview, bitrix.update_deal]
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.CHOOSE])]
     },
     
     States.PUT:{
         'text' : "Please type data as \'<row number> <your data>\'.",
         'buttons' : [{'Back' : tgflow.action(States.CHOOSE)}],
         'react' : tgflow.action(insert_row, react_to = 'text'),       
-        'prepare' : [analytics.send_pageview, bitrix.update_deal]
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.PUT])]
     },
     
     States.SUCCESS:{
         'text' : 'Done successfully!', 
         'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}],
-        'prepare' : [analytics.send_pageview, bitrix.update_deal]
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.SUCCESS])]
     },
     
     States.GET:{
         'text' : tgflow.handles.st('Here is your data:\n%s', 'data'),
         'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}],
-        'prepare' : [analytics.send_pageview, bitrix.update_deal]
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.GET])]
     },
     
     States.ERROR:{
         'text':'Sorry there was an error',
         'buttons': [{'Start':tgflow.action(States.START)}],
-        'prepare' : [analytics.send_pageview, bitrix.update_deal]
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.ERROR])]
     }  
 }
 
