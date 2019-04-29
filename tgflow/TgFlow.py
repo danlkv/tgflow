@@ -98,13 +98,6 @@ def start(ui):
         print("tgflow:polling error",e)
         traceback.print_exc()
 
-def get_file_link(file_id):
-    # TODO: implement this in api
-    finfo = bot.get_file(file_id)
-    l='https://api.telegram.org/file/bot%s/%s'%(
-        key,finfo.file_path)
-    return l
-
 def get_actions(event, s, d,  uid):
     actions = []
     _print('event is',event)
@@ -113,7 +106,7 @@ def get_actions(event, s, d,  uid):
     trigs.update(user_trigs)
     for trig_id, trigs_group in trigs.items():
         _print("evaluating group",trig_id,trigs_group)
-        for predicate, label, action, id_ in trigs_group:
+        for predicate, label, action, _ in trigs_group:
             comp = predicate(event, s, d)
             if comp == label:
                 _print("append action",action)
@@ -172,9 +165,12 @@ def gen_state_msg(i,ns,nd,_id,state_upd=True):
     pre_a = new_state_ui.get('prepare')
 
     if pre_a:
-       # call user-defined data perparations. 
-       _print("tgflow: found a prep function, calling...")
-       nd.update(pre_a(i,ns,**nd))
+        # call user-defined data perparations. 
+        _print("tgflow: found prep functions, calling...")
+        if not isinstance(pre_a, list):
+            pre_a = [pre_a,]
+        for prep_func in pre_a:
+            nd.update(prep_func(i,ns,**nd))
 
     args = {'s':ns,'d':nd}
     ui = render.prep(new_state_ui,args)
@@ -220,8 +216,9 @@ def flow(acts,s,d,i,_id):
 
         # user can choose what to send if no action found
         # Just should return -1 instead of state
-        if ns==-1:
-            return messages.append(None)
+        if ns.value == -1:
+            return messages
+
 
         # This allows to perform an action without waiting for user input
         messages.append(gen_state_msg(i,ns,nd,_id)[0])
@@ -259,7 +256,7 @@ def inline_trigs(ui):
         return [trigger]
     trigs = []
     if isinstance(ui,dict):
-        for k,v in ui.items():
+        for _, v in ui.items():
             trigs += inline_trigs(v)
     elif isinstance(ui,list):
         trigs = []
@@ -274,7 +271,7 @@ def button_trigs(ui,key=None):
         key = 'kb_'+key
         trigger = (buttons_predicate, key, ui, 1)
         return [trigger]
-        Actions['kb_'+str(k)]=ui
+        Actions['kb_'+str(key)]=ui
     trigs = []
     if isinstance(ui,dict):
         for k,v in ui.items():
