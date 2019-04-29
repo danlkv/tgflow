@@ -1,16 +1,15 @@
 import tgflow
 from enum import Enum
 from datetime import datetime
-import database_api
+import databases_files
 from tgflow.modules import Analytics, Bitrix24
 
-#key = '650613812:AAErWCUWakQAl65dtvk-mTfmNvEYAEdltVA'
 key='539066078:AAHCUsr8ZoP9JtP5KqOMuL7f_UoFyyH6wik'
 
-gsheets_auth_filepath = 'database_api/client_secret.json'
-analytics_tid_filepath = 'database_api/tid.txt'
-bitrix_tokens_filepath = 'database_api/tokens.txt'
-bitrix_creds_filepath = 'database_api/client_creds.txt'
+gsheets_auth_filepath = 'databases_files/client_secret.json'
+analytics_tid_filepath = 'databases_files/tid.txt'
+bitrix_tokens_filepath = 'databases_files/tokens.txt'
+bitrix_creds_filepath = 'databases_files/client_creds.txt'
 
 class States(Enum):
     ERROR = 0
@@ -29,9 +28,9 @@ bitrix_stages_dict = {
     States.GET: 'EXECUTING',
 }
 
-db_api = database_api.GSheetsApi(gsheets_auth_filepath)
+db_api = databases_files.GSheetsApi(gsheets_auth_filepath)
 analytics = tgflow.modules.Analytics(analytics_tid_filepath)
-bitrix = tgflow.modules.Bitrix24(bitrix_creds_filepath, bitrix_tokens_filepath, bitrix_stages_dict)
+bitrix = tgflow.modules.Bitrix24(bitrix_creds_filepath, bitrix_tokens_filepath)
 
 def open_sheet(i, s, **d):
     print('opening sheet \'{}\''.format(i.text))
