@@ -101,13 +101,15 @@ def start(ui):
 def get_actions(event, s, d,  uid):
     actions = []
     _print('event is',event)
-    default = Triggers.get('_tgflow_default_',{})
+    trigs = Triggers.get('_tgflow_default_',{})
     user_trigs = Triggers.get(uid,{})
-    user_trigs.update(default)
-    for trig_id  in user_trigs:
-        for predicate, label, action, _ in user_trigs[trig_id]:
+    trigs.update(user_trigs)
+    for trig_id, trigs_group in trigs.items():
+        _print("evaluating group",trig_id,trigs_group)
+        for predicate, label, action, _ in trigs_group:
             comp = predicate(event, s, d)
             if comp == label:
+                _print("append action",action)
                 actions.append(action)
     return actions
 
@@ -156,7 +158,7 @@ def callback_handler(call):
         pass
 
 def gen_state_msg(i,ns,nd,_id,state_upd=True):
-    if not ns:
+    if ns is None:
         _print('tgflow: None as new state, sending nothing')
         return []
     new_state_ui = UI.get(ns)
