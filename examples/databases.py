@@ -1,15 +1,15 @@
 import tgflow
 from enum import Enum
-import database_api
 from datetime import datetime
+import databases_files
+from tgflow.modules import Analytics, Bitrix24
 
-#key = '650613812:AAErWCUWakQAl65dtvk-mTfmNvEYAEdltVA'
 key='539066078:AAHCUsr8ZoP9JtP5KqOMuL7f_UoFyyH6wik'
-auth_filepath = 'database_api/client_secret.json'
-tid_filepath = 'database_api/tid.txt'
 
-db_api = database_api.GSheetsApi(auth_filepath)
-analytics = database_api.Analytics(tid_filepath)
+gsheets_auth_filepath = 'databases_files/client_secret.json'
+analytics_tid_filepath = 'databases_files/tid.txt'
+bitrix_tokens_filepath = 'databases_files/tokens.txt'
+bitrix_creds_filepath = 'databases_files/client_creds.txt'
 
 class States(Enum):
     ERROR = 0
@@ -18,6 +18,19 @@ class States(Enum):
     SUCCESS = 3
     PUT = 4
     GET = 5
+
+bitrix_stages_dict = {
+    States.ERROR: 'LOSE',
+    States.START: 'NEW',
+    States.CHOOSE: 'PREPARATION',
+    States.SUCCESS: 'FINAL_INVOICE',
+    States.PUT: 'PREPAYMENT_INVOICE',
+    States.GET: 'EXECUTING',
+}
+
+db_api = databases_files.GSheetsApi(gsheets_auth_filepath)
+analytics = tgflow.modules.Analytics(analytics_tid_filepath)
+bitrix = tgflow.modules.Bitrix24(bitrix_creds_filepath, bitrix_tokens_filepath)
 
 def open_sheet(i, s, **d):
     print('opening sheet \'{}\''.format(i.text))
@@ -54,7 +67,7 @@ UI = {
                   'Share your sheet with developer@treebo.iam.gserviceaccount.com.' 
                   'Then just send me your spreadsheet name and let\'s get started!'),
         'react' : tgflow.action(open_sheet, react_to='text'),
-        'prepare' : analytics.send_pageview,
+        'prepare' : [analytics.send_pageview, bitrix.add_lead, bitrix.add_contact, bitrix.add_deal],
     },
     
     States.CHOOSE:{
@@ -63,32 +76,32 @@ UI = {
             {'Insert row' : tgflow.action(States.PUT)},
             {'Recieve all data' : tgflow.action(get_all_data)}
         ],
-        'prepare' : analytics.send_pageview,
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.CHOOSE])]
     },
     
     States.PUT:{
         'text' : "Please type data as \'<row number> <your data>\'.",
         'buttons' : [{'Back' : tgflow.action(States.CHOOSE)}],
         'react' : tgflow.action(insert_row, react_to = 'text'),       
-        'prepare' : analytics.send_pageview,
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.PUT])]
     },
     
     States.SUCCESS:{
         'text' : 'Done successfully!', 
         'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}],
-        'prepare' : analytics.send_pageview,
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.SUCCESS])]
     },
     
     States.GET:{
         'text' : tgflow.handles.st('Here is your data:\n%s', 'data'),
         'buttons' : [{'Continue' : tgflow.action(States.CHOOSE)}],
-        'prepare' : analytics.send_pageview,
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.GET])]
     },
     
     States.ERROR:{
         'text':'Sorry there was an error',
         'buttons': [{'Start':tgflow.action(States.START)}],
-        'prepare' : analytics.send_pageview,
+        'prepare' : [analytics.send_pageview, bitrix.update_deal(bitrix_stages_dict[States.ERROR])]
     }  
 }
 
